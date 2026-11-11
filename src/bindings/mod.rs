@@ -11,6 +11,9 @@ pub mod token_codec {
     }
 
     pub fn format(value: &Token) -> Result<String, serde_json::Error> {
-        Ok(serde_json::to_value(value)?.as_str().expect("Token serializes as a string").to_string())
+        Ok(serde_json::to_value(value)?
+            .as_str()
+            .expect("Token serializes as a string")
+            .to_string())
     }
 }

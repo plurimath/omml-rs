@@ -12,10 +12,16 @@ pub fn parse(raw: &str) -> Result<Option<DateTimeValue>, &'static str> {
             return Err("dateTime fractional precision exceeds the native ISO profile");
         }
     }
-    let value = DateTime::parse_from_rfc3339(raw).or_else(|_| {
-        let naive = NaiveDateTime::parse_from_str(raw, "%Y-%m-%dT%H:%M:%S%.f")?;
-        Ok::<_, chrono::ParseError>(naive.and_local_timezone(FixedOffset::east_opt(0).unwrap()).unwrap())
-    }).map_err(|_| "unsupported or invalid OMML ISO dateTime")?;
+    let value = DateTime::parse_from_rfc3339(raw)
+        .or_else(|_| {
+            let naive = NaiveDateTime::parse_from_str(raw, "%Y-%m-%dT%H:%M:%S%.f")?;
+            Ok::<_, chrono::ParseError>(
+                naive
+                    .and_local_timezone(FixedOffset::east_opt(0).unwrap())
+                    .unwrap(),
+            )
+        })
+        .map_err(|_| "unsupported or invalid OMML ISO dateTime")?;
     if value.nanosecond() >= 1_000_000_000 {
         return Err("leap-second dateTime is outside the native ISO profile");
     }

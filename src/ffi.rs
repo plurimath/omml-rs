@@ -23,13 +23,20 @@ pub unsafe extern "C" fn omml_roundtrip_json_v1(
         let xml = std::slice::from_raw_parts(xml, xml_len);
         let root = match std::str::from_utf8(root) {
             Ok(value) => value,
-            Err(_) => return failure(json!({"category":"invalid_argument","message":"model type must be UTF-8"})),
+            Err(_) => {
+                return failure(
+                    json!({"category":"invalid_argument","message":"model type must be UTF-8"}),
+                )
+            }
         };
         match crate::dispatch::roundtrip(root, xml) {
             Ok(value) => json!({"abi_version":1,"ok":true,"result":value}),
             Err(error) => failure(error),
         }
-    }).unwrap_or_else(|_| failure(json!({"category":"runtime","message":"native operation panicked"})));
+    })
+    .unwrap_or_else(|_| {
+        failure(json!({"category":"runtime","message":"native operation panicked"}))
+    });
     CString::new(result.to_string()).map_or(std::ptr::null_mut(), CString::into_raw)
 }
 
