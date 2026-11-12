@@ -1,0 +1,15 @@
+{
+  "omml_source": "e14a91077c13c62878f641550e54ca4768fcfde5",
+  "ruby_framework_oracle": "eff859d0f6c2bb0936dd3add8ee252aea9dbaa17",
+  "rust_framework_base": "fd29cc9f9d5c029be08e97915f4c298419dd3f2d",
+  "rust_framework_candidate": "d56a82d79d9bc74b1483cc85b2cfde62c721ebdd",
+  "model_count": 186,
+  "graph_sha256": "ed54e558b492ef46211d0df66c77b496aab33d1b43a42d277948023bde04bb5d",
+  "chrono": {
+    "version": "0.4.42",
+    "sha256": "145052bdd345b87320e369255277e3fb5152762ad123a901ef5c262dd38fe8d2",
+    "yanked": false
+  },
+  "ruby_xml_fixture_sha256": "c2c9b52ecb57bc194b19cf5fbfdff62f9d22beac30873473f7f5435b7fee586e",
+  "ruby_xml_fixture_cases": 11
+}

@@ -1,0 +1,933 @@
+{
+  "manifest": 1,
+  "registry": {
+    "version": 1,
+    "types": {
+      "Lutaml::Xml::W3c::XmlSpaceType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "default",
+            "preserve"
+          ]
+        }
+      },
+      "Omml::Models::HexBinary": {
+        "base": "string",
+        "facets": {}
+      },
+      "Omml::Models::STAlignH": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "left",
+            "right",
+            "center",
+            "inside",
+            "outside",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STAlignV": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "top",
+            "bottom",
+            "center",
+            "inside",
+            "outside",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STBorder": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "nil",
+            "none",
+            "single",
+            "thick",
+            "double",
+            "dotted",
+            "dashed",
+            "dotDash",
+            "dotDotDash",
+            "triple",
+            "thinThickSmallGap",
+            "thickThinSmallGap",
+            "thinThickThinSmallGap",
+            "thinThickMediumGap",
+            "thickThinMediumGap",
+            "thinThickThinMediumGap",
+            "thinThickLargeGap",
+            "thickThinLargeGap",
+            "thinThickThinLargeGap",
+            "wave",
+            "doubleWave",
+            "dashSmallGap",
+            "dashDotStroked",
+            "threeDEmboss",
+            "threeDEngrave",
+            "outset",
+            "inset",
+            "apples",
+            "archedScallops",
+            "babyPacifier",
+            "babyRattle",
+            "balloons3Colors",
+            "balloonsHotAir",
+            "basicBlackDashes",
+            "basicBlackDots",
+            "basicBlackSquares",
+            "basicThinLines",
+            "basicWhiteDashes",
+            "basicWhiteDots",
+            "basicWhiteSquares",
+            "basicWideInline",
+            "basicWideMidline",
+            "basicWideOutline",
+            "bats",
+            "birds",
+            "birdsFlight",
+            "cabins",
+            "cakeSlice",
+            "candyCorn",
+            "celticKnotwork",
+            "certificateBanner",
+            "chainLink",
+            "champagneBottle",
+            "checkedBarBlack",
+            "checkedBarColor",
+            "checkered",
+            "christmasTree",
+            "circlesLines",
+            "circlesRectangles",
+            "classicalWave",
+            "clocks",
+            "compass",
+            "confetti",
+            "confettiGrays",
+            "confettiOutline",
+            "confettiStreamers",
+            "confettiWhite",
+            "cornerTriangles",
+            "couponCutoutDashes",
+            "couponCutoutDots",
+            "crazyMaze",
+            "creaturesButterfly",
+            "creaturesFish",
+            "creaturesInsects",
+            "creaturesLadyBug",
+            "crossStitch",
+            "cup",
+            "decoArch",
+            "decoArchColor",
+            "decoBlocks",
+            "diamondsGray",
+            "doubleD",
+            "doubleDiamonds",
+            "earth1",
+            "earth2",
+            "eclipsingSquares1",
+            "eclipsingSquares2",
+            "eggsBlack",
+            "fans",
+            "film",
+            "firecrackers",
+            "flowersBlockPrint",
+            "flowersDaisies",
+            "flowersModern1",
+            "flowersModern2",
+            "flowersPansy",
+            "flowersRedRose",
+            "flowersRoses",
+            "flowersTeacup",
+            "flowersTiny",
+            "gems",
+            "gingerbreadMan",
+            "gradient",
+            "handmade1",
+            "handmade2",
+            "heartBalloon",
+            "heartGray",
+            "hearts",
+            "heebieJeebies",
+            "holly",
+            "houseFunky",
+            "hypnotic",
+            "iceCreamCones",
+            "lightBulb",
+            "lightning1",
+            "lightning2",
+            "mapPins",
+            "mapleLeaf",
+            "mapleMuffins",
+            "marquee",
+            "marqueeToothed",
+            "moons",
+            "mosaic",
+            "musicNotes",
+            "northwest",
+            "ovals",
+            "packages",
+            "palmsBlack",
+            "palmsColor",
+            "paperClips",
+            "papyrus",
+            "partyFavor",
+            "partyGlass",
+            "pencils",
+            "people",
+            "peopleWaving",
+            "peopleHats",
+            "poinsettias",
+            "postageStamp",
+            "pumpkin1",
+            "pushPinNote2",
+            "pushPinNote1",
+            "pyramids",
+            "pyramidsAbove",
+            "quadrants",
+            "rings",
+            "safari",
+            "sawtooth",
+            "sawtoothGray",
+            "scaredCat",
+            "seattle",
+            "shadowedSquares",
+            "sharksTeeth",
+            "shorebirdTracks",
+            "skyrocket",
+            "snowflakeFancy",
+            "snowflakes",
+            "sombrero",
+            "southwest",
+            "stars",
+            "starsTop",
+            "stars3d",
+            "starsBlack",
+            "starsShadowed",
+            "sun",
+            "swirligig",
+            "tornPaper",
+            "tornPaperBlack",
+            "trees",
+            "triangleParty",
+            "triangles",
+            "tribal1",
+            "tribal2",
+            "tribal3",
+            "tribal4",
+            "tribal5",
+            "tribal6",
+            "twistedLines1",
+            "twistedLines2",
+            "vine",
+            "waveline",
+            "weavingAngles",
+            "weavingBraid",
+            "weavingRibbon",
+            "weavingStrips",
+            "whiteFlowers",
+            "woodwork",
+            "xIllusions",
+            "zanyTriangles",
+            "zigZag",
+            "zigZagStitch",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STBrClear": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "none",
+            "left",
+            "right",
+            "all",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STBrType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "page",
+            "column",
+            "textWrapping",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STBreakBin": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "before",
+            "after",
+            "repeat",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STBreakBinSub": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "--",
+            "-+",
+            "+-",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STCalendarType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "gregorian",
+            "hijri",
+            "hebrew",
+            "taiwan",
+            "japan",
+            "thai",
+            "korea",
+            "saka",
+            "gregorianXlitEnglish",
+            "gregorianXlitFrench",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STCombineBrackets": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "none",
+            "round",
+            "square",
+            "angle",
+            "curly",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STCoordinate": {
+        "base": "decimal",
+        "facets": {
+          "min_inclusive": "-27273042329600",
+          "max_inclusive": "27273042316900",
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::STDisplacedByCustomXml": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "next",
+            "prev",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STEdGrp": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "none",
+            "everyone",
+            "administrators",
+            "contributors",
+            "editors",
+            "owners",
+            "current",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STEm": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "none",
+            "dot",
+            "comma",
+            "circle",
+            "underDot",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STFFTextType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "regular",
+            "number",
+            "date",
+            "currentTime",
+            "currentDate",
+            "calculated",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STFType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "bar",
+            "skw",
+            "lin",
+            "noBar",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STFldCharType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "begin",
+            "separate",
+            "end",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STHexColor": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "auto",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STHighlightColor": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "black",
+            "blue",
+            "cyan",
+            "green",
+            "magenta",
+            "red",
+            "yellow",
+            "white",
+            "darkBlue",
+            "darkCyan",
+            "darkGreen",
+            "darkMagenta",
+            "darkRed",
+            "darkYellow",
+            "darkGray",
+            "lightGray",
+            "none",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STHint": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "default",
+            "eastAsia",
+            "cs",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STInfoTextType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "text",
+            "autoText",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STInteger2": {
+        "base": "integer",
+        "facets": {
+          "min_inclusive": "-2",
+          "max_inclusive": "2",
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::STInteger255": {
+        "base": "integer",
+        "facets": {
+          "min_inclusive": "1",
+          "max_inclusive": "255",
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::STJc": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "left",
+            "right",
+            "center",
+            "centerGroup",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STLang": {
+        "base": "string",
+        "facets": {}
+      },
+      "Omml::Models::STLimLoc": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "undOvr",
+            "subSup",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STLock": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "sdtLocked",
+            "contentLocked",
+            "unlocked",
+            "sdtContentLocked",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STOnOff": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "0",
+            "1",
+            "on",
+            "off",
+            "true",
+            "false",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STPTabAlignment": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "left",
+            "center",
+            "right",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STPTabLeader": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "none",
+            "dot",
+            "hyphen",
+            "underscore",
+            "middleDot",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STPTabRelativeTo": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "margin",
+            "indent",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STPositiveCoordinate": {
+        "base": "decimal",
+        "facets": {
+          "min_inclusive": "0",
+          "max_inclusive": "27273042316900",
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::STProofErr": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "spellStart",
+            "spellEnd",
+            "gramStart",
+            "gramEnd",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STRelFromH": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "margin",
+            "page",
+            "column",
+            "character",
+            "leftMargin",
+            "rightMargin",
+            "insideMargin",
+            "outsideMargin",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STRelFromV": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "margin",
+            "page",
+            "paragraph",
+            "line",
+            "topMargin",
+            "bottomMargin",
+            "insideMargin",
+            "outsideMargin",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STRubyAlign": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "center",
+            "distributeLetter",
+            "distributeSpace",
+            "left",
+            "right",
+            "rightVertical",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STScript": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "roman",
+            "script",
+            "fraktur",
+            "double-struck",
+            "sans-serif",
+            "monospace",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STSdtDateMappingType": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "text",
+            "date",
+            "dateTime",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STShd": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "nil",
+            "clear",
+            "solid",
+            "horzStripe",
+            "vertStripe",
+            "reverseDiagStripe",
+            "diagStripe",
+            "horzCross",
+            "diagCross",
+            "thinHorzStripe",
+            "thinVertStripe",
+            "thinReverseDiagStripe",
+            "thinDiagStripe",
+            "thinHorzCross",
+            "thinDiagCross",
+            "pct5",
+            "pct10",
+            "pct12",
+            "pct15",
+            "pct20",
+            "pct25",
+            "pct30",
+            "pct35",
+            "pct37",
+            "pct40",
+            "pct45",
+            "pct50",
+            "pct55",
+            "pct60",
+            "pct62",
+            "pct65",
+            "pct70",
+            "pct75",
+            "pct80",
+            "pct85",
+            "pct87",
+            "pct90",
+            "pct95",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STShp": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "centered",
+            "match",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STSpacingRule": {
+        "base": "integer",
+        "facets": {
+          "min_inclusive": "0",
+          "max_inclusive": "4",
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::STStyle": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "p",
+            "b",
+            "i",
+            "bi",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STTextEffect": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "blinkBackground",
+            "lights",
+            "antsBlack",
+            "antsRed",
+            "shimmer",
+            "sparkle",
+            "none",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STTextScale": {
+        "base": "integer",
+        "facets": {
+          "min_inclusive": "0",
+          "max_inclusive": "600",
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::STTheme": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "majorEastAsia",
+            "majorBidi",
+            "majorAscii",
+            "majorHAnsi",
+            "minorEastAsia",
+            "minorBidi",
+            "minorAscii",
+            "minorHAnsi",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STThemeColor": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "dark1",
+            "light1",
+            "dark2",
+            "light2",
+            "accent1",
+            "accent2",
+            "accent3",
+            "accent4",
+            "accent5",
+            "accent6",
+            "hyperlink",
+            "followedHyperlink",
+            "none",
+            "background1",
+            "text1",
+            "background2",
+            "text2",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STTopBot": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "top",
+            "bot",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STUnderline": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "single",
+            "words",
+            "double",
+            "thick",
+            "dotted",
+            "dottedHeavy",
+            "dash",
+            "dashedHeavy",
+            "dashLong",
+            "dashLongHeavy",
+            "dotDash",
+            "dashDotHeavy",
+            "dotDotDash",
+            "dashDotDotHeavy",
+            "wave",
+            "wavyHeavy",
+            "wavyDouble",
+            "none",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STVerticalAlignRun": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "baseline",
+            "superscript",
+            "subscript",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STWrapText": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "bothSides",
+            "left",
+            "right",
+            "largest",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STXAlign": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "left",
+            "center",
+            "right",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::STYAlign": {
+        "base": "string",
+        "facets": {
+          "enumeration": [
+            "top",
+            "center",
+            "bot",
+            ""
+          ]
+        }
+      },
+      "Omml::Models::Token": {
+        "base": "string",
+        "facets": {
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::UnsignedInt": {
+        "base": "integer",
+        "facets": {
+          "min_inclusive": "0",
+          "max_inclusive": "4294967295",
+          "source_binding_v1": true
+        }
+      },
+      "Omml::Models::UnsignedLong": {
+        "base": "integer",
+        "facets": {
+          "min_inclusive": "0",
+          "max_inclusive": "18446744073709551615",
+          "source_binding_v1": true
+        }
+      }
+    }
+  },
+  "graphs": {
+    "enum-subset-v1": {
+      "file": "enum-subset-v1.json",
+      "sha256": "2b701b5342908dc610abfcdf84b37874ad555b3e87c4a5828189cb0ae5f8a575",
+      "lml_checksum": "sha256:c4c7ac5e4a32c4f5eae21295e1b3f7d5b1daf41e640bec51f2e4fa9b8b3eca8f",
+      "models": 1,
+      "value_types": 2
+    },
+    "runtime-graph-v1": {
+      "file": "runtime-graph-v1.json",
+      "sha256": "ed54e558b492ef46211d0df66c77b496aab33d1b43a42d277948023bde04bb5d",
+      "lml_checksum": "sha256:e28c3dcef3d52b591b5390bc6e8b13e45217f5da3c0ca624c34150ee87cb67f2",
+      "models": 186,
+      "value_types": 56
+    },
+    "scalar-subset-v1": {
+      "file": "scalar-subset-v1.json",
+      "sha256": "51fa9b697d3a975980d3d83ca696f21c21743d7920e05ebdebc85883425e22cd",
+      "lml_checksum": "sha256:e14e8efc0c5c3b50371ef2d104a91cba77570175955f7c0badac9a8ac1295825",
+      "models": 7,
+      "value_types": 6
+    }
+  },
+  "binding_sources": {
+    "coordinate.rs": "168ddaa79f16deaf25f1ca906e00f48c3195861c6fea8225504f3105858235d4",
+    "coordinate.ts": "db508f7fc4aa07b0b99b001e6ef4c9cbe7463b70f3551da097965e092bc2081b",
+    "integer.rs": "877a51dd6afddbc3e219e4fcb6d28012436edc9a9deb1eadc0f3d8626e647fce",
+    "integer.ts": "84381b6d94127dd45098410c4bc750e735029df6c577311c9f6409dedab10036",
+    "token.rs": "51701621b609e52742f614a8dd8ed6a34bd1bd85cdbe340506e0986ce7663d5b",
+    "token.ts": "433ae76bb40597baf4898efe1366452c8c42de3bcf7fea3b3df391420e18d66e"
+  },
+  "producer": {
+    "source_commit": "75bba80e3480e68fcfef941b57647dc812ebc020",
+    "framework_commit": "eff859d0f6c2bb0936dd3add8ee252aea9dbaa17",
+    "ruby": "4.0.1",
+    "scope": "CTBr, scalar subsets, and the OMML runtime graph"
+  }
+}
