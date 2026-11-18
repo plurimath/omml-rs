@@ -2,6 +2,7 @@
 use lutaml_rs::{contracts, xml as xml_rt};
 
 pub mod bindings;
+pub mod document;
 
 // Generated sources are kept byte-exact with their generators; rustfmt skips them.
 #[rustfmt::skip]

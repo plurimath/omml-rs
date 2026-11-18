@@ -13,10 +13,6 @@
 //! The ledger is append-only: a row whose id has an `-r2` sibling is
 //! superseded by it and only the sibling runs, as in the Ruby gem's replay.
 use lutaml_rs::xml::moxml_binding::moxml::document::{ContentRow, Document, ElementRow};
-use omml::xml_codecs::{
-    read_Omml_Models_OMathPara_xml, read_Omml_Models_OMath_xml, write_Omml_Models_OMathPara_xml,
-    write_Omml_Models_OMath_xml,
-};
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
@@ -73,25 +69,36 @@ fn xml_tree(xml: &str) -> Option<Value> {
     Some(tree(&doc.element_rows(), 0))
 }
 
-const NS: &str = "http://schemas.openxmlformats.org/officeDocument/2006/math";
-
-/// What `Omml.parse(input).to_xml` does: the root picks the oMath or
-/// oMathPara model; any other root is refused.
+/// What `Omml.parse(input).to_xml` does.
 fn roundtrip(input: &str) -> Result<String, String> {
-    let doc = Document::parse(input.as_bytes()).map_err(|e| format!("{e:?}"))?;
-    let rows = doc.element_rows();
-    let root = rows.first().ok_or("no root element")?;
-    let bytes = input.as_bytes();
-    match (root.name.namespace.as_deref(), root.name.local.as_str()) {
-        (Some(NS), "oMath") => read_Omml_Models_OMath_xml(bytes)
-            .and_then(|m| write_Omml_Models_OMath_xml(&m))
-            .map_err(|e| e.to_string()),
-        (Some(NS), "oMathPara") => read_Omml_Models_OMathPara_xml(bytes)
-            .and_then(|m| write_Omml_Models_OMathPara_xml(&m))
-            .map_err(|e| e.to_string()),
-        (namespace, local) => Err(format!("unsupported root {namespace:?} {local}")),
-    }
+    omml::document::parse(input.as_bytes())
+        .and_then(|doc| doc.to_xml())
+        .map_err(|e| e.to_string())
 }
+
+/// Rows whose input is not well-formed XML. The Ruby gem's parser recovers
+/// from them and writes output; this crate parses strictly (W3C XML 1.0,
+/// no recovery), so it refuses them. Each must stay refused: a row listed
+/// here that the crate accepts fails the replay, and the list goes away once
+/// the testsuite records these rows as refusals.
+const KNOWN_REFUSALS: &[(&str, &str)] = &[
+    (
+        "omml-equation-arrays-007.model-roundtrip",
+        "bare '&' in text is not well-formed",
+    ),
+    (
+        "omml-matrices-017.model-roundtrip",
+        "'&nbsp;' is not an XML entity",
+    ),
+    (
+        "omml-unclosed-para.model-roundtrip",
+        "m:oMathPara is never closed",
+    ),
+    (
+        "omml-crossed-close.model-roundtrip",
+        "end tag m:r crosses the open m:t",
+    ),
+];
 
 /// `None` when the row passes, otherwise `(kind, detail)`.
 fn failure(row: &Value) -> Option<(&'static str, String)> {
@@ -102,6 +109,10 @@ fn failure(row: &Value) -> Option<(&'static str, String)> {
         row["id"]
     );
     let result = roundtrip(input);
+    let id = row["id"].as_str().unwrap();
+    if KNOWN_REFUSALS.iter().any(|(known, _)| *known == id) {
+        return result.ok().map(|xml| ("known-refusal-accepted", xml));
+    }
     if row["expected"].get("refusal").is_some() {
         return result.ok().map(|xml| ("accepted", xml));
     }
@@ -164,6 +175,12 @@ fn pinned_generation_replay() {
         );
     }
     assert_eq!(outcomes.len() + superseded.len(), rows.len());
+    for (known, reason) in KNOWN_REFUSALS {
+        assert!(
+            ids.contains(known),
+            "known refusal {known} ({reason}) is not in the corpus"
+        );
+    }
     let mut kinds = std::collections::BTreeMap::<String, usize>::new();
     for outcome in &outcomes {
         if let Some(kind) = outcome["kind"].as_str() {
@@ -177,6 +194,7 @@ fn pinned_generation_replay() {
         "executed": outcomes.len(),
         "superseded": superseded.len(),
         "failed": failures,
+        "known_refusals": KNOWN_REFUSALS.iter().map(|(id, reason)| json!({"id": id, "reason": reason})).collect::<Vec<_>>(),
         "kinds": kinds,
         "outcomes": outcomes,
     });
