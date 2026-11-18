@@ -179,16 +179,26 @@ pub enum ContentToken {
  Element { attribute: String, index: u64 },
  Text { #[serde(flatten)] source: TextSource },
  Cdata { #[serde(flatten)] source: TextSource },
+ Comment { literal: String },
+ ProcessingInstruction { target: String, data: String },
+ Attribute { attribute: String, index: u64 },
 }
 // serde cannot combine deny_unknown_fields with flatten, so tokens are read
 // through one closed wire shape and then checked against the token kind.
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct ContentTokenWire { kind: String, attribute: Option<String>, index: Option<u64>, literal: Option<String> }
+struct ContentTokenWire { kind: String, attribute: Option<String>, index: Option<u64>, literal: Option<String>, target: Option<String>, data: Option<String> }
 impl<'de> Deserialize<'de> for ContentToken {
  fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
   let w = ContentTokenWire::deserialize(d)?;
   let bad = |m: &str| serde::de::Error::custom(m);
+  if w.kind == "processing_instruction" {
+   return match (w.attribute, w.index, w.literal, w.target, w.data) {
+    (None, None, None, Some(target), Some(data)) => Ok(Self::ProcessingInstruction { target, data }),
+    _ => Err(bad("processing_instruction token needs target and data only")),
+   };
+  }
+  if w.target.is_some() || w.data.is_some() { return Err(bad("only processing_instruction tokens carry target and data")); }
   let source = match (w.attribute, w.index, w.literal) {
    (Some(attribute), Some(index), None) => TextSource::Member { attribute, index },
    (None, None, Some(literal)) => TextSource::Literal { literal },
@@ -199,13 +209,17 @@ impl<'de> Deserialize<'de> for ContentToken {
    ("element", _) => Err(bad("element token needs attribute and index only")),
    ("text", source) => Ok(Self::Text { source }),
    ("cdata", source) => Ok(Self::Cdata { source }),
+   ("comment", TextSource::Literal { literal }) => Ok(Self::Comment { literal }),
+   ("comment", _) => Err(bad("comment token needs literal only")),
+   ("attribute", TextSource::Member { attribute, index: 0 }) => Ok(Self::Attribute { attribute, index: 0 }),
+   ("attribute", _) => Err(bad("attribute token needs attribute and index 0 only")),
    _ => Err(bad("unknown content token kind")),
   }
  }
 }
 impl ContentToken {
  pub fn reference(&self) -> Option<(&str,u64)> { match self {
- Self::Element { attribute,index } | Self::Text { source: TextSource::Member { attribute,index } } | Self::Cdata { source: TextSource::Member { attribute,index } } => Some((attribute,*index)),
+ Self::Element { attribute,index } | Self::Attribute { attribute,index } | Self::Text { source: TextSource::Member { attribute,index } } | Self::Cdata { source: TextSource::Member { attribute,index } } => Some((attribute,*index)),
  _ => None,
  } }
 }
@@ -392,7 +406,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -491,7 +505,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1252,7 +1266,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1482,7 +1496,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1521,7 +1535,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1560,7 +1574,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1620,7 +1634,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1639,7 +1653,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1743,7 +1757,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1768,7 +1782,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2097,7 +2111,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2116,7 +2130,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2285,7 +2299,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2313,7 +2327,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -2358,7 +2372,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2374,7 +2388,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2636,7 +2650,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2655,7 +2669,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -2694,7 +2708,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2778,7 +2792,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2846,7 +2860,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2868,7 +2882,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3187,7 +3201,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3238,7 +3252,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3336,7 +3350,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3517,7 +3531,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3536,7 +3550,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3803,7 +3817,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3822,7 +3836,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3841,7 +3855,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3866,7 +3880,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3902,7 +3916,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4053,7 +4067,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4248,7 +4262,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4267,7 +4281,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4286,7 +4300,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -4325,7 +4339,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4474,7 +4488,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5207,7 +5221,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5313,7 +5327,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5382,7 +5396,7 @@ if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_C
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5470,7 +5484,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5509,7 +5523,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5592,7 +5606,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5731,7 +5745,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5927,7 +5941,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5969,7 +5983,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -6741,7 +6755,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -6817,7 +6831,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7487,7 +7501,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7737,7 +7751,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7834,7 +7848,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8014,7 +8028,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8334,7 +8348,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8370,7 +8384,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8389,7 +8403,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8408,7 +8422,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8828,7 +8842,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8847,7 +8861,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8889,7 +8903,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8911,7 +8925,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8947,7 +8961,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8998,7 +9012,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9017,7 +9031,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9053,7 +9067,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9078,7 +9092,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9106,7 +9120,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9125,7 +9139,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9144,7 +9158,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9316,7 +9330,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9355,7 +9369,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9371,7 +9385,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9420,7 +9434,7 @@ if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_C
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9456,7 +9470,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9472,7 +9486,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9732,7 +9746,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9771,7 +9785,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
