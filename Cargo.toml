@@ -14,6 +14,12 @@ crate-type = ["rlib", "cdylib"]
 default = []
 model-serde = []
 
+# The replay compares each parsed model with the testsuite's Ruby model wire
+# through the models' serde JSON.
+[[test]]
+name = "corpus_replay"
+required-features = ["model-serde"]
+
 [dependencies]
 # TEMPORARY: pin to lutaml merge commit once lutaml-rs#10 / lutaml-ts#3 land (fork head of lutaml-rs#10).
 lutaml-rs = { version = "=0.1.0", git = "https://github.com/suleman-uzair/lutaml-rs", rev = "0d1a93de8ed4d80824c6e341ab95fede3e94b48a", default-features = false, features = ["xml"] }
