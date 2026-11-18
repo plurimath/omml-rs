@@ -19,6 +19,29 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
+  generated:
+    name: Generated code matches the pinned lutaml-rs
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install Rust toolchain
+        run: rustup toolchain install stable --profile minimal
+      - name: Regenerate src/generated
+        run: .github/scripts/regenerate.sh target/regenerated
+      - name: Upload the regenerated sources
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: regenerated-src
+          path: target/regenerated
+          if-no-files-found: ignore
+      - name: Compare with the checked-in sources
+        run: diff -r src/generated target/regenerated
+
   test:
     name: ${{ matrix.os }} / Rust ${{ matrix.rust }}
     runs-on: ${{ matrix.os }}
