@@ -243,8 +243,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTAcc, bool)->Result<(),ValidationError>] = &[Omml_Models_CTAcc::__lml_validate_field_0, Omml_Models_CTAcc::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTAcc, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTAcc::__lml_validate_field_0, Omml_Models_CTAcc::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -276,8 +277,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTAccPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTAccPr::__lml_validate_field_0, Omml_Models_CTAccPr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTAccPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTAccPr::__lml_validate_field_0, Omml_Models_CTAccPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -376,8 +378,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTAnchor, bool)->Result<(),ValidationError>] = &[Omml_Models_CTAnchor::__lml_validate_field_0, Omml_Models_CTAnchor::__lml_validate_field_1, Omml_Models_CTAnchor::__lml_validate_field_2, Omml_Models_CTAnchor::__lml_validate_field_3, Omml_Models_CTAnchor::__lml_validate_field_4, Omml_Models_CTAnchor::__lml_validate_field_5, Omml_Models_CTAnchor::__lml_validate_field_6, Omml_Models_CTAnchor::__lml_validate_field_7, Omml_Models_CTAnchor::__lml_validate_field_19, Omml_Models_CTAnchor::__lml_validate_field_20, Omml_Models_CTAnchor::__lml_validate_field_21, Omml_Models_CTAnchor::__lml_validate_field_22, Omml_Models_CTAnchor::__lml_validate_field_23];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTAnchor, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTAnchor::__lml_validate_field_0, Omml_Models_CTAnchor::__lml_validate_field_1, Omml_Models_CTAnchor::__lml_validate_field_2, Omml_Models_CTAnchor::__lml_validate_field_3, Omml_Models_CTAnchor::__lml_validate_field_4, Omml_Models_CTAnchor::__lml_validate_field_5, Omml_Models_CTAnchor::__lml_validate_field_6, Omml_Models_CTAnchor::__lml_validate_field_7, Omml_Models_CTAnchor::__lml_validate_field_19, Omml_Models_CTAnchor::__lml_validate_field_20, Omml_Models_CTAnchor::__lml_validate_field_21, Omml_Models_CTAnchor::__lml_validate_field_22, Omml_Models_CTAnchor::__lml_validate_field_23];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -486,8 +489,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTBar, bool)->Result<(),ValidationError>] = &[Omml_Models_CTBar::__lml_validate_field_0, Omml_Models_CTBar::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTBar, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBar::__lml_validate_field_0, Omml_Models_CTBar::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -519,8 +523,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTBarPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTBarPr::__lml_validate_field_0, Omml_Models_CTBarPr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTBarPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBarPr::__lml_validate_field_0, Omml_Models_CTBarPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -1365,8 +1370,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTBorderBox, bool)->Result<(),ValidationError>] = &[Omml_Models_CTBorderBox::__lml_validate_field_0, Omml_Models_CTBorderBox::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTBorderBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBorderBox::__lml_validate_field_0, Omml_Models_CTBorderBox::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTBorderBox@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "border_box_pr" => match &self.border_box_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -1424,8 +1430,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTBorderBoxPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTBorderBoxPr::__lml_validate_field_0, Omml_Models_CTBorderBoxPr::__lml_validate_field_1, Omml_Models_CTBorderBoxPr::__lml_validate_field_2, Omml_Models_CTBorderBoxPr::__lml_validate_field_3, Omml_Models_CTBorderBoxPr::__lml_validate_field_4, Omml_Models_CTBorderBoxPr::__lml_validate_field_5, Omml_Models_CTBorderBoxPr::__lml_validate_field_6, Omml_Models_CTBorderBoxPr::__lml_validate_field_7, Omml_Models_CTBorderBoxPr::__lml_validate_field_8];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTBorderBoxPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBorderBoxPr::__lml_validate_field_0, Omml_Models_CTBorderBoxPr::__lml_validate_field_1, Omml_Models_CTBorderBoxPr::__lml_validate_field_2, Omml_Models_CTBorderBoxPr::__lml_validate_field_3, Omml_Models_CTBorderBoxPr::__lml_validate_field_4, Omml_Models_CTBorderBoxPr::__lml_validate_field_5, Omml_Models_CTBorderBoxPr::__lml_validate_field_6, Omml_Models_CTBorderBoxPr::__lml_validate_field_7, Omml_Models_CTBorderBoxPr::__lml_validate_field_8];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -1493,8 +1500,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTBox, bool)->Result<(),ValidationError>] = &[Omml_Models_CTBox::__lml_validate_field_0, Omml_Models_CTBox::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBox::__lml_validate_field_0, Omml_Models_CTBox::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -1538,8 +1546,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTBoxPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTBoxPr::__lml_validate_field_0, Omml_Models_CTBoxPr::__lml_validate_field_1, Omml_Models_CTBoxPr::__lml_validate_field_2, Omml_Models_CTBoxPr::__lml_validate_field_3, Omml_Models_CTBoxPr::__lml_validate_field_4, Omml_Models_CTBoxPr::__lml_validate_field_5];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTBoxPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBoxPr::__lml_validate_field_0, Omml_Models_CTBoxPr::__lml_validate_field_1, Omml_Models_CTBoxPr::__lml_validate_field_2, Omml_Models_CTBoxPr::__lml_validate_field_3, Omml_Models_CTBoxPr::__lml_validate_field_4, Omml_Models_CTBoxPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -1946,8 +1955,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTCtrlPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTCtrlPr::__lml_validate_field_0, Omml_Models_CTCtrlPr::__lml_validate_field_1, Omml_Models_CTCtrlPr::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTCtrlPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTCtrlPr::__lml_validate_field_0, Omml_Models_CTCtrlPr::__lml_validate_field_1, Omml_Models_CTCtrlPr::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -1983,8 +1993,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTCustomXmlPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTCustomXmlPr::__lml_validate_field_0, Omml_Models_CTCustomXmlPr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTCustomXmlPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTCustomXmlPr::__lml_validate_field_0, Omml_Models_CTCustomXmlPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -2115,8 +2126,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTCustomXmlRun, bool)->Result<(),ValidationError>] = &[Omml_Models_CTCustomXmlRun::__lml_validate_field_0, Omml_Models_CTCustomXmlRun::__lml_validate_field_3, Omml_Models_CTCustomXmlRun::__lml_validate_field_4, Omml_Models_CTCustomXmlRun::__lml_validate_field_5, Omml_Models_CTCustomXmlRun::__lml_validate_field_6, Omml_Models_CTCustomXmlRun::__lml_validate_field_7, Omml_Models_CTCustomXmlRun::__lml_validate_field_8, Omml_Models_CTCustomXmlRun::__lml_validate_field_9, Omml_Models_CTCustomXmlRun::__lml_validate_field_10, Omml_Models_CTCustomXmlRun::__lml_validate_field_11, Omml_Models_CTCustomXmlRun::__lml_validate_field_12, Omml_Models_CTCustomXmlRun::__lml_validate_field_13, Omml_Models_CTCustomXmlRun::__lml_validate_field_14, Omml_Models_CTCustomXmlRun::__lml_validate_field_15, Omml_Models_CTCustomXmlRun::__lml_validate_field_16, Omml_Models_CTCustomXmlRun::__lml_validate_field_17, Omml_Models_CTCustomXmlRun::__lml_validate_field_18, Omml_Models_CTCustomXmlRun::__lml_validate_field_19, Omml_Models_CTCustomXmlRun::__lml_validate_field_20, Omml_Models_CTCustomXmlRun::__lml_validate_field_21, Omml_Models_CTCustomXmlRun::__lml_validate_field_22, Omml_Models_CTCustomXmlRun::__lml_validate_field_23, Omml_Models_CTCustomXmlRun::__lml_validate_field_24, Omml_Models_CTCustomXmlRun::__lml_validate_field_25, Omml_Models_CTCustomXmlRun::__lml_validate_field_26, Omml_Models_CTCustomXmlRun::__lml_validate_field_27, Omml_Models_CTCustomXmlRun::__lml_validate_field_28, Omml_Models_CTCustomXmlRun::__lml_validate_field_29, Omml_Models_CTCustomXmlRun::__lml_validate_field_30, Omml_Models_CTCustomXmlRun::__lml_validate_field_31, Omml_Models_CTCustomXmlRun::__lml_validate_field_32, Omml_Models_CTCustomXmlRun::__lml_validate_field_33, Omml_Models_CTCustomXmlRun::__lml_validate_field_34];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTCustomXmlRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTCustomXmlRun::__lml_validate_field_0, Omml_Models_CTCustomXmlRun::__lml_validate_field_3, Omml_Models_CTCustomXmlRun::__lml_validate_field_4, Omml_Models_CTCustomXmlRun::__lml_validate_field_5, Omml_Models_CTCustomXmlRun::__lml_validate_field_6, Omml_Models_CTCustomXmlRun::__lml_validate_field_7, Omml_Models_CTCustomXmlRun::__lml_validate_field_8, Omml_Models_CTCustomXmlRun::__lml_validate_field_9, Omml_Models_CTCustomXmlRun::__lml_validate_field_10, Omml_Models_CTCustomXmlRun::__lml_validate_field_11, Omml_Models_CTCustomXmlRun::__lml_validate_field_12, Omml_Models_CTCustomXmlRun::__lml_validate_field_13, Omml_Models_CTCustomXmlRun::__lml_validate_field_14, Omml_Models_CTCustomXmlRun::__lml_validate_field_15, Omml_Models_CTCustomXmlRun::__lml_validate_field_16, Omml_Models_CTCustomXmlRun::__lml_validate_field_17, Omml_Models_CTCustomXmlRun::__lml_validate_field_18, Omml_Models_CTCustomXmlRun::__lml_validate_field_19, Omml_Models_CTCustomXmlRun::__lml_validate_field_20, Omml_Models_CTCustomXmlRun::__lml_validate_field_21, Omml_Models_CTCustomXmlRun::__lml_validate_field_22, Omml_Models_CTCustomXmlRun::__lml_validate_field_23, Omml_Models_CTCustomXmlRun::__lml_validate_field_24, Omml_Models_CTCustomXmlRun::__lml_validate_field_25, Omml_Models_CTCustomXmlRun::__lml_validate_field_26, Omml_Models_CTCustomXmlRun::__lml_validate_field_27, Omml_Models_CTCustomXmlRun::__lml_validate_field_28, Omml_Models_CTCustomXmlRun::__lml_validate_field_29, Omml_Models_CTCustomXmlRun::__lml_validate_field_30, Omml_Models_CTCustomXmlRun::__lml_validate_field_31, Omml_Models_CTCustomXmlRun::__lml_validate_field_32, Omml_Models_CTCustomXmlRun::__lml_validate_field_33, Omml_Models_CTCustomXmlRun::__lml_validate_field_34];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -2277,8 +2289,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTD, bool)->Result<(),ValidationError>] = &[Omml_Models_CTD::__lml_validate_field_0, Omml_Models_CTD::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTD, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTD::__lml_validate_field_0, Omml_Models_CTD::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -2329,8 +2342,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTDPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTDPr::__lml_validate_field_0, Omml_Models_CTDPr::__lml_validate_field_1, Omml_Models_CTDPr::__lml_validate_field_2, Omml_Models_CTDPr::__lml_validate_field_3, Omml_Models_CTDPr::__lml_validate_field_4, Omml_Models_CTDPr::__lml_validate_field_5, Omml_Models_CTDPr::__lml_validate_field_6];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTDPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTDPr::__lml_validate_field_0, Omml_Models_CTDPr::__lml_validate_field_1, Omml_Models_CTDPr::__lml_validate_field_2, Omml_Models_CTDPr::__lml_validate_field_3, Omml_Models_CTDPr::__lml_validate_field_4, Omml_Models_CTDPr::__lml_validate_field_5, Omml_Models_CTDPr::__lml_validate_field_6];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTDPr@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "beg_chr" => match &self.beg_chr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -2442,8 +2456,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTDrawing, bool)->Result<(),ValidationError>] = &[Omml_Models_CTDrawing::__lml_validate_field_0, Omml_Models_CTDrawing::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTDrawing, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTDrawing::__lml_validate_field_0, Omml_Models_CTDrawing::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.anchor {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.inline {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTDrawing@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -2708,8 +2723,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTEqArr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTEqArr::__lml_validate_field_0, Omml_Models_CTEqArr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTEqArr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTEqArr::__lml_validate_field_0, Omml_Models_CTEqArr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -2754,8 +2770,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTEqArrPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTEqArrPr::__lml_validate_field_0, Omml_Models_CTEqArrPr::__lml_validate_field_1, Omml_Models_CTEqArrPr::__lml_validate_field_2, Omml_Models_CTEqArrPr::__lml_validate_field_3, Omml_Models_CTEqArrPr::__lml_validate_field_4, Omml_Models_CTEqArrPr::__lml_validate_field_5];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTEqArrPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTEqArrPr::__lml_validate_field_0, Omml_Models_CTEqArrPr::__lml_validate_field_1, Omml_Models_CTEqArrPr::__lml_validate_field_2, Omml_Models_CTEqArrPr::__lml_validate_field_3, Omml_Models_CTEqArrPr::__lml_validate_field_4, Omml_Models_CTEqArrPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -2811,8 +2828,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTF, bool)->Result<(),ValidationError>] = &[Omml_Models_CTF::__lml_validate_field_0, Omml_Models_CTF::__lml_validate_field_1, Omml_Models_CTF::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTF, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTF::__lml_validate_field_0, Omml_Models_CTF::__lml_validate_field_1, Omml_Models_CTF::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -2854,8 +2872,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFFCheckBox, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFFCheckBox::__lml_validate_field_0, Omml_Models_CTFFCheckBox::__lml_validate_field_1, Omml_Models_CTFFCheckBox::__lml_validate_field_2, Omml_Models_CTFFCheckBox::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFFCheckBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFCheckBox::__lml_validate_field_0, Omml_Models_CTFFCheckBox::__lml_validate_field_1, Omml_Models_CTFFCheckBox::__lml_validate_field_2, Omml_Models_CTFFCheckBox::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.size {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.size_auto {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTFFCheckBox@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTFFCheckBox@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -2900,8 +2919,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFFDDList, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFFDDList::__lml_validate_field_0, Omml_Models_CTFFDDList::__lml_validate_field_1, Omml_Models_CTFFDDList::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFFDDList, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFDDList::__lml_validate_field_0, Omml_Models_CTFFDDList::__lml_validate_field_1, Omml_Models_CTFFDDList::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -2962,8 +2982,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFFData, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFFData::__lml_validate_field_0, Omml_Models_CTFFData::__lml_validate_field_1, Omml_Models_CTFFData::__lml_validate_field_2, Omml_Models_CTFFData::__lml_validate_field_3, Omml_Models_CTFFData::__lml_validate_field_4, Omml_Models_CTFFData::__lml_validate_field_5, Omml_Models_CTFFData::__lml_validate_field_6, Omml_Models_CTFFData::__lml_validate_field_7, Omml_Models_CTFFData::__lml_validate_field_8, Omml_Models_CTFFData::__lml_validate_field_9];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFFData, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFData::__lml_validate_field_0, Omml_Models_CTFFData::__lml_validate_field_1, Omml_Models_CTFFData::__lml_validate_field_2, Omml_Models_CTFFData::__lml_validate_field_3, Omml_Models_CTFFData::__lml_validate_field_4, Omml_Models_CTFFData::__lml_validate_field_5, Omml_Models_CTFFData::__lml_validate_field_6, Omml_Models_CTFFData::__lml_validate_field_7, Omml_Models_CTFFData::__lml_validate_field_8, Omml_Models_CTFFData::__lml_validate_field_9];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.name {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.enabled {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.calc_on_exit {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.entry_macro {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.exit_macro {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.help_text {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.status_text {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if (||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.check_box {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.dd_list {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.text_input {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTFFData@omml","","choice_upper_bound"));}Ok(true)})()? {count+=1;}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTFFData@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -3130,8 +3151,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFFTextInput, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFFTextInput::__lml_validate_field_0, Omml_Models_CTFFTextInput::__lml_validate_field_1, Omml_Models_CTFFTextInput::__lml_validate_field_2, Omml_Models_CTFFTextInput::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFFTextInput, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFTextInput::__lml_validate_field_0, Omml_Models_CTFFTextInput::__lml_validate_field_1, Omml_Models_CTFFTextInput::__lml_validate_field_2, Omml_Models_CTFFTextInput::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -3222,8 +3244,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFPr::__lml_validate_field_0, Omml_Models_CTFPr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFPr::__lml_validate_field_0, Omml_Models_CTFPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -3410,8 +3433,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFldChar, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFldChar::__lml_validate_field_0, Omml_Models_CTFldChar::__lml_validate_field_1, Omml_Models_CTFldChar::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFldChar, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFldChar::__lml_validate_field_0, Omml_Models_CTFldChar::__lml_validate_field_1, Omml_Models_CTFldChar::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.fld_data {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.ff_data {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.numbering_change {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -3707,8 +3731,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFunc, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFunc::__lml_validate_field_0, Omml_Models_CTFunc::__lml_validate_field_1, Omml_Models_CTFunc::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFunc, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFunc::__lml_validate_field_0, Omml_Models_CTFunc::__lml_validate_field_1, Omml_Models_CTFunc::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTFunc@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "func_pr" => match &self.func_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -3747,8 +3772,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTFuncPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTFuncPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFuncPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFuncPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -3773,8 +3799,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTGraphicalObject, bool)->Result<(),ValidationError>] = &[Omml_Models_CTGraphicalObject::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTGraphicalObject, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGraphicalObject::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -3835,8 +3862,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTGraphicalObjectFrameLocking, bool)->Result<(),ValidationError>] = &[Omml_Models_CTGraphicalObjectFrameLocking::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTGraphicalObjectFrameLocking, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGraphicalObjectFrameLocking::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -3864,8 +3892,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTGroupChr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTGroupChr::__lml_validate_field_0, Omml_Models_CTGroupChr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTGroupChr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGroupChr::__lml_validate_field_0, Omml_Models_CTGroupChr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -3903,8 +3932,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTGroupChrPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTGroupChrPr::__lml_validate_field_0, Omml_Models_CTGroupChrPr::__lml_validate_field_1, Omml_Models_CTGroupChrPr::__lml_validate_field_2, Omml_Models_CTGroupChrPr::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTGroupChrPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGroupChrPr::__lml_validate_field_0, Omml_Models_CTGroupChrPr::__lml_validate_field_1, Omml_Models_CTGroupChrPr::__lml_validate_field_2, Omml_Models_CTGroupChrPr::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4184,8 +4214,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTHyperlink, bool)->Result<(),ValidationError>] = &[Omml_Models_CTHyperlink::__lml_validate_field_6, Omml_Models_CTHyperlink::__lml_validate_field_7, Omml_Models_CTHyperlink::__lml_validate_field_8, Omml_Models_CTHyperlink::__lml_validate_field_9, Omml_Models_CTHyperlink::__lml_validate_field_10, Omml_Models_CTHyperlink::__lml_validate_field_11, Omml_Models_CTHyperlink::__lml_validate_field_12, Omml_Models_CTHyperlink::__lml_validate_field_13, Omml_Models_CTHyperlink::__lml_validate_field_14, Omml_Models_CTHyperlink::__lml_validate_field_15, Omml_Models_CTHyperlink::__lml_validate_field_16, Omml_Models_CTHyperlink::__lml_validate_field_17, Omml_Models_CTHyperlink::__lml_validate_field_18, Omml_Models_CTHyperlink::__lml_validate_field_19, Omml_Models_CTHyperlink::__lml_validate_field_20, Omml_Models_CTHyperlink::__lml_validate_field_21, Omml_Models_CTHyperlink::__lml_validate_field_22, Omml_Models_CTHyperlink::__lml_validate_field_23, Omml_Models_CTHyperlink::__lml_validate_field_24, Omml_Models_CTHyperlink::__lml_validate_field_25, Omml_Models_CTHyperlink::__lml_validate_field_26, Omml_Models_CTHyperlink::__lml_validate_field_27, Omml_Models_CTHyperlink::__lml_validate_field_28, Omml_Models_CTHyperlink::__lml_validate_field_29, Omml_Models_CTHyperlink::__lml_validate_field_30, Omml_Models_CTHyperlink::__lml_validate_field_31, Omml_Models_CTHyperlink::__lml_validate_field_32, Omml_Models_CTHyperlink::__lml_validate_field_33, Omml_Models_CTHyperlink::__lml_validate_field_34, Omml_Models_CTHyperlink::__lml_validate_field_35, Omml_Models_CTHyperlink::__lml_validate_field_36, Omml_Models_CTHyperlink::__lml_validate_field_37];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTHyperlink, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTHyperlink::__lml_validate_field_6, Omml_Models_CTHyperlink::__lml_validate_field_7, Omml_Models_CTHyperlink::__lml_validate_field_8, Omml_Models_CTHyperlink::__lml_validate_field_9, Omml_Models_CTHyperlink::__lml_validate_field_10, Omml_Models_CTHyperlink::__lml_validate_field_11, Omml_Models_CTHyperlink::__lml_validate_field_12, Omml_Models_CTHyperlink::__lml_validate_field_13, Omml_Models_CTHyperlink::__lml_validate_field_14, Omml_Models_CTHyperlink::__lml_validate_field_15, Omml_Models_CTHyperlink::__lml_validate_field_16, Omml_Models_CTHyperlink::__lml_validate_field_17, Omml_Models_CTHyperlink::__lml_validate_field_18, Omml_Models_CTHyperlink::__lml_validate_field_19, Omml_Models_CTHyperlink::__lml_validate_field_20, Omml_Models_CTHyperlink::__lml_validate_field_21, Omml_Models_CTHyperlink::__lml_validate_field_22, Omml_Models_CTHyperlink::__lml_validate_field_23, Omml_Models_CTHyperlink::__lml_validate_field_24, Omml_Models_CTHyperlink::__lml_validate_field_25, Omml_Models_CTHyperlink::__lml_validate_field_26, Omml_Models_CTHyperlink::__lml_validate_field_27, Omml_Models_CTHyperlink::__lml_validate_field_28, Omml_Models_CTHyperlink::__lml_validate_field_29, Omml_Models_CTHyperlink::__lml_validate_field_30, Omml_Models_CTHyperlink::__lml_validate_field_31, Omml_Models_CTHyperlink::__lml_validate_field_32, Omml_Models_CTHyperlink::__lml_validate_field_33, Omml_Models_CTHyperlink::__lml_validate_field_34, Omml_Models_CTHyperlink::__lml_validate_field_35, Omml_Models_CTHyperlink::__lml_validate_field_36, Omml_Models_CTHyperlink::__lml_validate_field_37];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
@@ -4362,8 +4393,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTInline, bool)->Result<(),ValidationError>] = &[Omml_Models_CTInline::__lml_validate_field_0, Omml_Models_CTInline::__lml_validate_field_1, Omml_Models_CTInline::__lml_validate_field_2, Omml_Models_CTInline::__lml_validate_field_3, Omml_Models_CTInline::__lml_validate_field_4];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTInline, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTInline::__lml_validate_field_0, Omml_Models_CTInline::__lml_validate_field_1, Omml_Models_CTInline::__lml_validate_field_2, Omml_Models_CTInline::__lml_validate_field_3, Omml_Models_CTInline::__lml_validate_field_4];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4534,8 +4566,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTLimLow, bool)->Result<(),ValidationError>] = &[Omml_Models_CTLimLow::__lml_validate_field_0, Omml_Models_CTLimLow::__lml_validate_field_1, Omml_Models_CTLimLow::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTLimLow, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimLow::__lml_validate_field_0, Omml_Models_CTLimLow::__lml_validate_field_1, Omml_Models_CTLimLow::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTLimLow@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "lim_low_pr" => match &self.lim_low_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -4574,8 +4607,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTLimLowPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTLimLowPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTLimLowPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimLowPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4606,8 +4640,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTLimUpp, bool)->Result<(),ValidationError>] = &[Omml_Models_CTLimUpp::__lml_validate_field_0, Omml_Models_CTLimUpp::__lml_validate_field_1, Omml_Models_CTLimUpp::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTLimUpp, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimUpp::__lml_validate_field_0, Omml_Models_CTLimUpp::__lml_validate_field_1, Omml_Models_CTLimUpp::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4640,8 +4675,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTLimUppPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTLimUppPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTLimUppPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimUppPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4711,8 +4747,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTM, bool)->Result<(),ValidationError>] = &[Omml_Models_CTM::__lml_validate_field_0, Omml_Models_CTM::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTM, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTM::__lml_validate_field_0, Omml_Models_CTM::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4742,8 +4779,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTMC, bool)->Result<(),ValidationError>] = &[Omml_Models_CTMC::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTMC, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMC::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4771,8 +4809,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTMCPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTMCPr::__lml_validate_field_0, Omml_Models_CTMCPr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTMCPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMCPr::__lml_validate_field_0, Omml_Models_CTMCPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4802,8 +4841,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTMCS, bool)->Result<(),ValidationError>] = &[Omml_Models_CTMCS::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTMCS, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMCS::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4852,8 +4892,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTMPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTMPr::__lml_validate_field_0, Omml_Models_CTMPr::__lml_validate_field_1, Omml_Models_CTMPr::__lml_validate_field_2, Omml_Models_CTMPr::__lml_validate_field_3, Omml_Models_CTMPr::__lml_validate_field_4, Omml_Models_CTMPr::__lml_validate_field_5, Omml_Models_CTMPr::__lml_validate_field_6, Omml_Models_CTMPr::__lml_validate_field_7, Omml_Models_CTMPr::__lml_validate_field_8];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTMPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMPr::__lml_validate_field_0, Omml_Models_CTMPr::__lml_validate_field_1, Omml_Models_CTMPr::__lml_validate_field_2, Omml_Models_CTMPr::__lml_validate_field_3, Omml_Models_CTMPr::__lml_validate_field_4, Omml_Models_CTMPr::__lml_validate_field_5, Omml_Models_CTMPr::__lml_validate_field_6, Omml_Models_CTMPr::__lml_validate_field_7, Omml_Models_CTMPr::__lml_validate_field_8];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -4918,8 +4959,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTMR, bool)->Result<(),ValidationError>] = &[Omml_Models_CTMR::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTMR, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMR::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -5085,8 +5127,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTMathPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTMathPr::__lml_validate_field_0, Omml_Models_CTMathPr::__lml_validate_field_1, Omml_Models_CTMathPr::__lml_validate_field_2, Omml_Models_CTMathPr::__lml_validate_field_3, Omml_Models_CTMathPr::__lml_validate_field_4, Omml_Models_CTMathPr::__lml_validate_field_5, Omml_Models_CTMathPr::__lml_validate_field_6, Omml_Models_CTMathPr::__lml_validate_field_7, Omml_Models_CTMathPr::__lml_validate_field_8, Omml_Models_CTMathPr::__lml_validate_field_9, Omml_Models_CTMathPr::__lml_validate_field_10, Omml_Models_CTMathPr::__lml_validate_field_11, Omml_Models_CTMathPr::__lml_validate_field_12, Omml_Models_CTMathPr::__lml_validate_field_13, Omml_Models_CTMathPr::__lml_validate_field_14, Omml_Models_CTMathPr::__lml_validate_field_15];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTMathPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMathPr::__lml_validate_field_0, Omml_Models_CTMathPr::__lml_validate_field_1, Omml_Models_CTMathPr::__lml_validate_field_2, Omml_Models_CTMathPr::__lml_validate_field_3, Omml_Models_CTMathPr::__lml_validate_field_4, Omml_Models_CTMathPr::__lml_validate_field_5, Omml_Models_CTMathPr::__lml_validate_field_6, Omml_Models_CTMathPr::__lml_validate_field_7, Omml_Models_CTMathPr::__lml_validate_field_8, Omml_Models_CTMathPr::__lml_validate_field_9, Omml_Models_CTMathPr::__lml_validate_field_10, Omml_Models_CTMathPr::__lml_validate_field_11, Omml_Models_CTMathPr::__lml_validate_field_12, Omml_Models_CTMathPr::__lml_validate_field_13, Omml_Models_CTMathPr::__lml_validate_field_14, Omml_Models_CTMathPr::__lml_validate_field_15];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.wrap_indent {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_right {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count>1 {return Err(invalid("Omml::Models::CTMathPr@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTMathPr@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -5248,8 +5291,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTNary, bool)->Result<(),ValidationError>] = &[Omml_Models_CTNary::__lml_validate_field_0, Omml_Models_CTNary::__lml_validate_field_1, Omml_Models_CTNary::__lml_validate_field_2, Omml_Models_CTNary::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTNary, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNary::__lml_validate_field_0, Omml_Models_CTNary::__lml_validate_field_1, Omml_Models_CTNary::__lml_validate_field_2, Omml_Models_CTNary::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -5301,8 +5345,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTNaryPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTNaryPr::__lml_validate_field_0, Omml_Models_CTNaryPr::__lml_validate_field_1, Omml_Models_CTNaryPr::__lml_validate_field_2, Omml_Models_CTNaryPr::__lml_validate_field_3, Omml_Models_CTNaryPr::__lml_validate_field_4, Omml_Models_CTNaryPr::__lml_validate_field_5];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTNaryPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNaryPr::__lml_validate_field_0, Omml_Models_CTNaryPr::__lml_validate_field_1, Omml_Models_CTNaryPr::__lml_validate_field_2, Omml_Models_CTNaryPr::__lml_validate_field_3, Omml_Models_CTNaryPr::__lml_validate_field_4, Omml_Models_CTNaryPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -5370,8 +5415,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTNonVisualDrawingProps, bool)->Result<(),ValidationError>] = &[Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_0, Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_1, Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTNonVisualDrawingProps, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_0, Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_1, Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -5409,8 +5455,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTNonVisualGraphicFrameProperties, bool)->Result<(),ValidationError>] = &[Omml_Models_CTNonVisualGraphicFrameProperties::__lml_validate_field_0, Omml_Models_CTNonVisualGraphicFrameProperties::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTNonVisualGraphicFrameProperties, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNonVisualGraphicFrameProperties::__lml_validate_field_0, Omml_Models_CTNonVisualGraphicFrameProperties::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -5575,8 +5622,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTOMath, bool)->Result<(),ValidationError>] = &[Omml_Models_CTOMath::__lml_validate_field_0, Omml_Models_CTOMath::__lml_validate_field_1, Omml_Models_CTOMath::__lml_validate_field_2, Omml_Models_CTOMath::__lml_validate_field_3, Omml_Models_CTOMath::__lml_validate_field_4, Omml_Models_CTOMath::__lml_validate_field_5, Omml_Models_CTOMath::__lml_validate_field_6, Omml_Models_CTOMath::__lml_validate_field_7, Omml_Models_CTOMath::__lml_validate_field_8, Omml_Models_CTOMath::__lml_validate_field_9, Omml_Models_CTOMath::__lml_validate_field_10, Omml_Models_CTOMath::__lml_validate_field_11, Omml_Models_CTOMath::__lml_validate_field_12, Omml_Models_CTOMath::__lml_validate_field_13, Omml_Models_CTOMath::__lml_validate_field_14, Omml_Models_CTOMath::__lml_validate_field_15, Omml_Models_CTOMath::__lml_validate_field_16, Omml_Models_CTOMath::__lml_validate_field_17, Omml_Models_CTOMath::__lml_validate_field_18, Omml_Models_CTOMath::__lml_validate_field_19, Omml_Models_CTOMath::__lml_validate_field_20, Omml_Models_CTOMath::__lml_validate_field_21, Omml_Models_CTOMath::__lml_validate_field_22, Omml_Models_CTOMath::__lml_validate_field_23, Omml_Models_CTOMath::__lml_validate_field_24, Omml_Models_CTOMath::__lml_validate_field_25, Omml_Models_CTOMath::__lml_validate_field_26, Omml_Models_CTOMath::__lml_validate_field_27, Omml_Models_CTOMath::__lml_validate_field_28, Omml_Models_CTOMath::__lml_validate_field_29, Omml_Models_CTOMath::__lml_validate_field_30, Omml_Models_CTOMath::__lml_validate_field_31, Omml_Models_CTOMath::__lml_validate_field_32, Omml_Models_CTOMath::__lml_validate_field_33, Omml_Models_CTOMath::__lml_validate_field_34, Omml_Models_CTOMath::__lml_validate_field_35, Omml_Models_CTOMath::__lml_validate_field_36, Omml_Models_CTOMath::__lml_validate_field_37, Omml_Models_CTOMath::__lml_validate_field_38, Omml_Models_CTOMath::__lml_validate_field_39, Omml_Models_CTOMath::__lml_validate_field_40, Omml_Models_CTOMath::__lml_validate_field_41, Omml_Models_CTOMath::__lml_validate_field_42, Omml_Models_CTOMath::__lml_validate_field_43, Omml_Models_CTOMath::__lml_validate_field_44];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMath::__lml_validate_field_0, Omml_Models_CTOMath::__lml_validate_field_1, Omml_Models_CTOMath::__lml_validate_field_2, Omml_Models_CTOMath::__lml_validate_field_3, Omml_Models_CTOMath::__lml_validate_field_4, Omml_Models_CTOMath::__lml_validate_field_5, Omml_Models_CTOMath::__lml_validate_field_6, Omml_Models_CTOMath::__lml_validate_field_7, Omml_Models_CTOMath::__lml_validate_field_8, Omml_Models_CTOMath::__lml_validate_field_9, Omml_Models_CTOMath::__lml_validate_field_10, Omml_Models_CTOMath::__lml_validate_field_11, Omml_Models_CTOMath::__lml_validate_field_12, Omml_Models_CTOMath::__lml_validate_field_13, Omml_Models_CTOMath::__lml_validate_field_14, Omml_Models_CTOMath::__lml_validate_field_15, Omml_Models_CTOMath::__lml_validate_field_16, Omml_Models_CTOMath::__lml_validate_field_17, Omml_Models_CTOMath::__lml_validate_field_18, Omml_Models_CTOMath::__lml_validate_field_19, Omml_Models_CTOMath::__lml_validate_field_20, Omml_Models_CTOMath::__lml_validate_field_21, Omml_Models_CTOMath::__lml_validate_field_22, Omml_Models_CTOMath::__lml_validate_field_23, Omml_Models_CTOMath::__lml_validate_field_24, Omml_Models_CTOMath::__lml_validate_field_25, Omml_Models_CTOMath::__lml_validate_field_26, Omml_Models_CTOMath::__lml_validate_field_27, Omml_Models_CTOMath::__lml_validate_field_28, Omml_Models_CTOMath::__lml_validate_field_29, Omml_Models_CTOMath::__lml_validate_field_30, Omml_Models_CTOMath::__lml_validate_field_31, Omml_Models_CTOMath::__lml_validate_field_32, Omml_Models_CTOMath::__lml_validate_field_33, Omml_Models_CTOMath::__lml_validate_field_34, Omml_Models_CTOMath::__lml_validate_field_35, Omml_Models_CTOMath::__lml_validate_field_36, Omml_Models_CTOMath::__lml_validate_field_37, Omml_Models_CTOMath::__lml_validate_field_38, Omml_Models_CTOMath::__lml_validate_field_39, Omml_Models_CTOMath::__lml_validate_field_40, Omml_Models_CTOMath::__lml_validate_field_41, Omml_Models_CTOMath::__lml_validate_field_42, Omml_Models_CTOMath::__lml_validate_field_43, Omml_Models_CTOMath::__lml_validate_field_44];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTOMath@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "acc" => match &self.acc { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -5973,8 +6021,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTOMathArg, bool)->Result<(),ValidationError>] = &[Omml_Models_CTOMathArg::__lml_validate_field_0, Omml_Models_CTOMathArg::__lml_validate_field_1, Omml_Models_CTOMathArg::__lml_validate_field_2, Omml_Models_CTOMathArg::__lml_validate_field_3, Omml_Models_CTOMathArg::__lml_validate_field_4, Omml_Models_CTOMathArg::__lml_validate_field_5, Omml_Models_CTOMathArg::__lml_validate_field_6, Omml_Models_CTOMathArg::__lml_validate_field_7, Omml_Models_CTOMathArg::__lml_validate_field_8, Omml_Models_CTOMathArg::__lml_validate_field_9, Omml_Models_CTOMathArg::__lml_validate_field_10, Omml_Models_CTOMathArg::__lml_validate_field_11, Omml_Models_CTOMathArg::__lml_validate_field_12, Omml_Models_CTOMathArg::__lml_validate_field_13, Omml_Models_CTOMathArg::__lml_validate_field_14, Omml_Models_CTOMathArg::__lml_validate_field_15, Omml_Models_CTOMathArg::__lml_validate_field_16, Omml_Models_CTOMathArg::__lml_validate_field_17, Omml_Models_CTOMathArg::__lml_validate_field_18, Omml_Models_CTOMathArg::__lml_validate_field_19, Omml_Models_CTOMathArg::__lml_validate_field_20, Omml_Models_CTOMathArg::__lml_validate_field_21, Omml_Models_CTOMathArg::__lml_validate_field_22, Omml_Models_CTOMathArg::__lml_validate_field_23, Omml_Models_CTOMathArg::__lml_validate_field_24, Omml_Models_CTOMathArg::__lml_validate_field_25, Omml_Models_CTOMathArg::__lml_validate_field_26, Omml_Models_CTOMathArg::__lml_validate_field_27, Omml_Models_CTOMathArg::__lml_validate_field_28, Omml_Models_CTOMathArg::__lml_validate_field_29, Omml_Models_CTOMathArg::__lml_validate_field_30, Omml_Models_CTOMathArg::__lml_validate_field_31, Omml_Models_CTOMathArg::__lml_validate_field_32, Omml_Models_CTOMathArg::__lml_validate_field_33, Omml_Models_CTOMathArg::__lml_validate_field_34, Omml_Models_CTOMathArg::__lml_validate_field_35, Omml_Models_CTOMathArg::__lml_validate_field_36, Omml_Models_CTOMathArg::__lml_validate_field_37, Omml_Models_CTOMathArg::__lml_validate_field_38, Omml_Models_CTOMathArg::__lml_validate_field_39, Omml_Models_CTOMathArg::__lml_validate_field_40, Omml_Models_CTOMathArg::__lml_validate_field_41, Omml_Models_CTOMathArg::__lml_validate_field_42, Omml_Models_CTOMathArg::__lml_validate_field_43, Omml_Models_CTOMathArg::__lml_validate_field_44, Omml_Models_CTOMathArg::__lml_validate_field_45, Omml_Models_CTOMathArg::__lml_validate_field_46, Omml_Models_CTOMathArg::__lml_validate_field_47];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathArg, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathArg::__lml_validate_field_0, Omml_Models_CTOMathArg::__lml_validate_field_1, Omml_Models_CTOMathArg::__lml_validate_field_2, Omml_Models_CTOMathArg::__lml_validate_field_3, Omml_Models_CTOMathArg::__lml_validate_field_4, Omml_Models_CTOMathArg::__lml_validate_field_5, Omml_Models_CTOMathArg::__lml_validate_field_6, Omml_Models_CTOMathArg::__lml_validate_field_7, Omml_Models_CTOMathArg::__lml_validate_field_8, Omml_Models_CTOMathArg::__lml_validate_field_9, Omml_Models_CTOMathArg::__lml_validate_field_10, Omml_Models_CTOMathArg::__lml_validate_field_11, Omml_Models_CTOMathArg::__lml_validate_field_12, Omml_Models_CTOMathArg::__lml_validate_field_13, Omml_Models_CTOMathArg::__lml_validate_field_14, Omml_Models_CTOMathArg::__lml_validate_field_15, Omml_Models_CTOMathArg::__lml_validate_field_16, Omml_Models_CTOMathArg::__lml_validate_field_17, Omml_Models_CTOMathArg::__lml_validate_field_18, Omml_Models_CTOMathArg::__lml_validate_field_19, Omml_Models_CTOMathArg::__lml_validate_field_20, Omml_Models_CTOMathArg::__lml_validate_field_21, Omml_Models_CTOMathArg::__lml_validate_field_22, Omml_Models_CTOMathArg::__lml_validate_field_23, Omml_Models_CTOMathArg::__lml_validate_field_24, Omml_Models_CTOMathArg::__lml_validate_field_25, Omml_Models_CTOMathArg::__lml_validate_field_26, Omml_Models_CTOMathArg::__lml_validate_field_27, Omml_Models_CTOMathArg::__lml_validate_field_28, Omml_Models_CTOMathArg::__lml_validate_field_29, Omml_Models_CTOMathArg::__lml_validate_field_30, Omml_Models_CTOMathArg::__lml_validate_field_31, Omml_Models_CTOMathArg::__lml_validate_field_32, Omml_Models_CTOMathArg::__lml_validate_field_33, Omml_Models_CTOMathArg::__lml_validate_field_34, Omml_Models_CTOMathArg::__lml_validate_field_35, Omml_Models_CTOMathArg::__lml_validate_field_36, Omml_Models_CTOMathArg::__lml_validate_field_37, Omml_Models_CTOMathArg::__lml_validate_field_38, Omml_Models_CTOMathArg::__lml_validate_field_39, Omml_Models_CTOMathArg::__lml_validate_field_40, Omml_Models_CTOMathArg::__lml_validate_field_41, Omml_Models_CTOMathArg::__lml_validate_field_42, Omml_Models_CTOMathArg::__lml_validate_field_43, Omml_Models_CTOMathArg::__lml_validate_field_44, Omml_Models_CTOMathArg::__lml_validate_field_45, Omml_Models_CTOMathArg::__lml_validate_field_46, Omml_Models_CTOMathArg::__lml_validate_field_47];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTOMathArg@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "arg_pr" => match &self.arg_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -6245,8 +6294,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTOMathArgPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTOMathArgPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathArgPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathArgPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -6322,8 +6372,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTOMathPara, bool)->Result<(),ValidationError>] = &[Omml_Models_CTOMathPara::__lml_validate_field_0, Omml_Models_CTOMathPara::__lml_validate_field_1, Omml_Models_CTOMathPara::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathPara, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathPara::__lml_validate_field_0, Omml_Models_CTOMathPara::__lml_validate_field_1, Omml_Models_CTOMathPara::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTOMathPara@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "o_math_para_pr" => match &self.o_math_para_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -6363,8 +6414,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTOMathParaPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTOMathParaPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathParaPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathParaPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -6395,8 +6447,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTObject, bool)->Result<(),ValidationError>] = &[Omml_Models_CTObject::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTObject, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTObject::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -6440,8 +6493,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTOfficeArtExtensionList, bool)->Result<(),ValidationError>] = &[Omml_Models_CTOfficeArtExtensionList::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOfficeArtExtensionList, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOfficeArtExtensionList::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -6727,8 +6781,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTPhant, bool)->Result<(),ValidationError>] = &[Omml_Models_CTPhant::__lml_validate_field_0, Omml_Models_CTPhant::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTPhant, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPhant::__lml_validate_field_0, Omml_Models_CTPhant::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -6772,8 +6827,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTPhantPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTPhantPr::__lml_validate_field_0, Omml_Models_CTPhantPr::__lml_validate_field_1, Omml_Models_CTPhantPr::__lml_validate_field_2, Omml_Models_CTPhantPr::__lml_validate_field_3, Omml_Models_CTPhantPr::__lml_validate_field_4, Omml_Models_CTPhantPr::__lml_validate_field_5];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTPhantPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPhantPr::__lml_validate_field_0, Omml_Models_CTPhantPr::__lml_validate_field_1, Omml_Models_CTPhantPr::__lml_validate_field_2, Omml_Models_CTPhantPr::__lml_validate_field_3, Omml_Models_CTPhantPr::__lml_validate_field_4, Omml_Models_CTPhantPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -6826,8 +6882,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTPicture, bool)->Result<(),ValidationError>] = &[Omml_Models_CTPicture::__lml_validate_field_0, Omml_Models_CTPicture::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTPicture, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPicture::__lml_validate_field_0, Omml_Models_CTPicture::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -6857,8 +6914,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTPlaceholder, bool)->Result<(),ValidationError>] = &[Omml_Models_CTPlaceholder::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTPlaceholder, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPlaceholder::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -7244,8 +7302,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTR, bool)->Result<(),ValidationError>] = &[Omml_Models_CTR::__lml_validate_field_0, Omml_Models_CTR::__lml_validate_field_1, Omml_Models_CTR::__lml_validate_field_2, Omml_Models_CTR::__lml_validate_field_3, Omml_Models_CTR::__lml_validate_field_4, Omml_Models_CTR::__lml_validate_field_5, Omml_Models_CTR::__lml_validate_field_6, Omml_Models_CTR::__lml_validate_field_7, Omml_Models_CTR::__lml_validate_field_8, Omml_Models_CTR::__lml_validate_field_9, Omml_Models_CTR::__lml_validate_field_10, Omml_Models_CTR::__lml_validate_field_11, Omml_Models_CTR::__lml_validate_field_12, Omml_Models_CTR::__lml_validate_field_13, Omml_Models_CTR::__lml_validate_field_14, Omml_Models_CTR::__lml_validate_field_15, Omml_Models_CTR::__lml_validate_field_16, Omml_Models_CTR::__lml_validate_field_17, Omml_Models_CTR::__lml_validate_field_18, Omml_Models_CTR::__lml_validate_field_19, Omml_Models_CTR::__lml_validate_field_20, Omml_Models_CTR::__lml_validate_field_21, Omml_Models_CTR::__lml_validate_field_22, Omml_Models_CTR::__lml_validate_field_23, Omml_Models_CTR::__lml_validate_field_24, Omml_Models_CTR::__lml_validate_field_25, Omml_Models_CTR::__lml_validate_field_26, Omml_Models_CTR::__lml_validate_field_27, Omml_Models_CTR::__lml_validate_field_28, Omml_Models_CTR::__lml_validate_field_29, Omml_Models_CTR::__lml_validate_field_30, Omml_Models_CTR::__lml_validate_field_31, Omml_Models_CTR::__lml_validate_field_32, Omml_Models_CTR::__lml_validate_field_33];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTR, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTR::__lml_validate_field_0, Omml_Models_CTR::__lml_validate_field_1, Omml_Models_CTR::__lml_validate_field_2, Omml_Models_CTR::__lml_validate_field_3, Omml_Models_CTR::__lml_validate_field_4, Omml_Models_CTR::__lml_validate_field_5, Omml_Models_CTR::__lml_validate_field_6, Omml_Models_CTR::__lml_validate_field_7, Omml_Models_CTR::__lml_validate_field_8, Omml_Models_CTR::__lml_validate_field_9, Omml_Models_CTR::__lml_validate_field_10, Omml_Models_CTR::__lml_validate_field_11, Omml_Models_CTR::__lml_validate_field_12, Omml_Models_CTR::__lml_validate_field_13, Omml_Models_CTR::__lml_validate_field_14, Omml_Models_CTR::__lml_validate_field_15, Omml_Models_CTR::__lml_validate_field_16, Omml_Models_CTR::__lml_validate_field_17, Omml_Models_CTR::__lml_validate_field_18, Omml_Models_CTR::__lml_validate_field_19, Omml_Models_CTR::__lml_validate_field_20, Omml_Models_CTR::__lml_validate_field_21, Omml_Models_CTR::__lml_validate_field_22, Omml_Models_CTR::__lml_validate_field_23, Omml_Models_CTR::__lml_validate_field_24, Omml_Models_CTR::__lml_validate_field_25, Omml_Models_CTR::__lml_validate_field_26, Omml_Models_CTR::__lml_validate_field_27, Omml_Models_CTR::__lml_validate_field_28, Omml_Models_CTR::__lml_validate_field_29, Omml_Models_CTR::__lml_validate_field_30, Omml_Models_CTR::__lml_validate_field_31, Omml_Models_CTR::__lml_validate_field_32, Omml_Models_CTR::__lml_validate_field_33];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTR@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "r_pr" => match &self.r_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -7456,8 +7515,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRPR, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRPR::__lml_validate_field_0, Omml_Models_CTRPR::__lml_validate_field_1, Omml_Models_CTRPR::__lml_validate_field_2, Omml_Models_CTRPR::__lml_validate_field_3, Omml_Models_CTRPR::__lml_validate_field_4, Omml_Models_CTRPR::__lml_validate_field_5];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRPR, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPR::__lml_validate_field_0, Omml_Models_CTRPR::__lml_validate_field_1, Omml_Models_CTRPR::__lml_validate_field_2, Omml_Models_CTRPR::__lml_validate_field_3, Omml_Models_CTRPR::__lml_validate_field_4, Omml_Models_CTRPR::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.nor {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTRPR@omml","","choice_upper_bound"));}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTRPR@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTRPR@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -7624,8 +7684,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRPr::__lml_validate_field_0, Omml_Models_CTRPr::__lml_validate_field_1, Omml_Models_CTRPr::__lml_validate_field_2, Omml_Models_CTRPr::__lml_validate_field_3, Omml_Models_CTRPr::__lml_validate_field_4, Omml_Models_CTRPr::__lml_validate_field_5, Omml_Models_CTRPr::__lml_validate_field_6, Omml_Models_CTRPr::__lml_validate_field_7, Omml_Models_CTRPr::__lml_validate_field_8, Omml_Models_CTRPr::__lml_validate_field_9, Omml_Models_CTRPr::__lml_validate_field_10, Omml_Models_CTRPr::__lml_validate_field_11, Omml_Models_CTRPr::__lml_validate_field_12, Omml_Models_CTRPr::__lml_validate_field_13, Omml_Models_CTRPr::__lml_validate_field_14, Omml_Models_CTRPr::__lml_validate_field_15, Omml_Models_CTRPr::__lml_validate_field_16, Omml_Models_CTRPr::__lml_validate_field_17, Omml_Models_CTRPr::__lml_validate_field_18, Omml_Models_CTRPr::__lml_validate_field_19, Omml_Models_CTRPr::__lml_validate_field_20, Omml_Models_CTRPr::__lml_validate_field_21, Omml_Models_CTRPr::__lml_validate_field_22, Omml_Models_CTRPr::__lml_validate_field_23, Omml_Models_CTRPr::__lml_validate_field_24, Omml_Models_CTRPr::__lml_validate_field_25, Omml_Models_CTRPr::__lml_validate_field_26, Omml_Models_CTRPr::__lml_validate_field_27, Omml_Models_CTRPr::__lml_validate_field_28, Omml_Models_CTRPr::__lml_validate_field_29, Omml_Models_CTRPr::__lml_validate_field_30, Omml_Models_CTRPr::__lml_validate_field_31, Omml_Models_CTRPr::__lml_validate_field_32, Omml_Models_CTRPr::__lml_validate_field_33, Omml_Models_CTRPr::__lml_validate_field_34, Omml_Models_CTRPr::__lml_validate_field_35, Omml_Models_CTRPr::__lml_validate_field_36, Omml_Models_CTRPr::__lml_validate_field_37, Omml_Models_CTRPr::__lml_validate_field_38, Omml_Models_CTRPr::__lml_validate_field_39];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPr::__lml_validate_field_0, Omml_Models_CTRPr::__lml_validate_field_1, Omml_Models_CTRPr::__lml_validate_field_2, Omml_Models_CTRPr::__lml_validate_field_3, Omml_Models_CTRPr::__lml_validate_field_4, Omml_Models_CTRPr::__lml_validate_field_5, Omml_Models_CTRPr::__lml_validate_field_6, Omml_Models_CTRPr::__lml_validate_field_7, Omml_Models_CTRPr::__lml_validate_field_8, Omml_Models_CTRPr::__lml_validate_field_9, Omml_Models_CTRPr::__lml_validate_field_10, Omml_Models_CTRPr::__lml_validate_field_11, Omml_Models_CTRPr::__lml_validate_field_12, Omml_Models_CTRPr::__lml_validate_field_13, Omml_Models_CTRPr::__lml_validate_field_14, Omml_Models_CTRPr::__lml_validate_field_15, Omml_Models_CTRPr::__lml_validate_field_16, Omml_Models_CTRPr::__lml_validate_field_17, Omml_Models_CTRPr::__lml_validate_field_18, Omml_Models_CTRPr::__lml_validate_field_19, Omml_Models_CTRPr::__lml_validate_field_20, Omml_Models_CTRPr::__lml_validate_field_21, Omml_Models_CTRPr::__lml_validate_field_22, Omml_Models_CTRPr::__lml_validate_field_23, Omml_Models_CTRPr::__lml_validate_field_24, Omml_Models_CTRPr::__lml_validate_field_25, Omml_Models_CTRPr::__lml_validate_field_26, Omml_Models_CTRPr::__lml_validate_field_27, Omml_Models_CTRPr::__lml_validate_field_28, Omml_Models_CTRPr::__lml_validate_field_29, Omml_Models_CTRPr::__lml_validate_field_30, Omml_Models_CTRPr::__lml_validate_field_31, Omml_Models_CTRPr::__lml_validate_field_32, Omml_Models_CTRPr::__lml_validate_field_33, Omml_Models_CTRPr::__lml_validate_field_34, Omml_Models_CTRPr::__lml_validate_field_35, Omml_Models_CTRPr::__lml_validate_field_36, Omml_Models_CTRPr::__lml_validate_field_37, Omml_Models_CTRPr::__lml_validate_field_38, Omml_Models_CTRPr::__lml_validate_field_39];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -7854,8 +7915,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRPrChange, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRPrChange::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRPrChange, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPrChange::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
@@ -7994,8 +8056,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRPrOriginal, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRPrOriginal::__lml_validate_field_0, Omml_Models_CTRPrOriginal::__lml_validate_field_1, Omml_Models_CTRPrOriginal::__lml_validate_field_2, Omml_Models_CTRPrOriginal::__lml_validate_field_3, Omml_Models_CTRPrOriginal::__lml_validate_field_4, Omml_Models_CTRPrOriginal::__lml_validate_field_5, Omml_Models_CTRPrOriginal::__lml_validate_field_6, Omml_Models_CTRPrOriginal::__lml_validate_field_7, Omml_Models_CTRPrOriginal::__lml_validate_field_8, Omml_Models_CTRPrOriginal::__lml_validate_field_9, Omml_Models_CTRPrOriginal::__lml_validate_field_10, Omml_Models_CTRPrOriginal::__lml_validate_field_11, Omml_Models_CTRPrOriginal::__lml_validate_field_12, Omml_Models_CTRPrOriginal::__lml_validate_field_13, Omml_Models_CTRPrOriginal::__lml_validate_field_14, Omml_Models_CTRPrOriginal::__lml_validate_field_15, Omml_Models_CTRPrOriginal::__lml_validate_field_16, Omml_Models_CTRPrOriginal::__lml_validate_field_17, Omml_Models_CTRPrOriginal::__lml_validate_field_18, Omml_Models_CTRPrOriginal::__lml_validate_field_19, Omml_Models_CTRPrOriginal::__lml_validate_field_20, Omml_Models_CTRPrOriginal::__lml_validate_field_21, Omml_Models_CTRPrOriginal::__lml_validate_field_22, Omml_Models_CTRPrOriginal::__lml_validate_field_23, Omml_Models_CTRPrOriginal::__lml_validate_field_24, Omml_Models_CTRPrOriginal::__lml_validate_field_25, Omml_Models_CTRPrOriginal::__lml_validate_field_26, Omml_Models_CTRPrOriginal::__lml_validate_field_27, Omml_Models_CTRPrOriginal::__lml_validate_field_28, Omml_Models_CTRPrOriginal::__lml_validate_field_29, Omml_Models_CTRPrOriginal::__lml_validate_field_30, Omml_Models_CTRPrOriginal::__lml_validate_field_31, Omml_Models_CTRPrOriginal::__lml_validate_field_32, Omml_Models_CTRPrOriginal::__lml_validate_field_33, Omml_Models_CTRPrOriginal::__lml_validate_field_34, Omml_Models_CTRPrOriginal::__lml_validate_field_35, Omml_Models_CTRPrOriginal::__lml_validate_field_36, Omml_Models_CTRPrOriginal::__lml_validate_field_37, Omml_Models_CTRPrOriginal::__lml_validate_field_38];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRPrOriginal, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPrOriginal::__lml_validate_field_0, Omml_Models_CTRPrOriginal::__lml_validate_field_1, Omml_Models_CTRPrOriginal::__lml_validate_field_2, Omml_Models_CTRPrOriginal::__lml_validate_field_3, Omml_Models_CTRPrOriginal::__lml_validate_field_4, Omml_Models_CTRPrOriginal::__lml_validate_field_5, Omml_Models_CTRPrOriginal::__lml_validate_field_6, Omml_Models_CTRPrOriginal::__lml_validate_field_7, Omml_Models_CTRPrOriginal::__lml_validate_field_8, Omml_Models_CTRPrOriginal::__lml_validate_field_9, Omml_Models_CTRPrOriginal::__lml_validate_field_10, Omml_Models_CTRPrOriginal::__lml_validate_field_11, Omml_Models_CTRPrOriginal::__lml_validate_field_12, Omml_Models_CTRPrOriginal::__lml_validate_field_13, Omml_Models_CTRPrOriginal::__lml_validate_field_14, Omml_Models_CTRPrOriginal::__lml_validate_field_15, Omml_Models_CTRPrOriginal::__lml_validate_field_16, Omml_Models_CTRPrOriginal::__lml_validate_field_17, Omml_Models_CTRPrOriginal::__lml_validate_field_18, Omml_Models_CTRPrOriginal::__lml_validate_field_19, Omml_Models_CTRPrOriginal::__lml_validate_field_20, Omml_Models_CTRPrOriginal::__lml_validate_field_21, Omml_Models_CTRPrOriginal::__lml_validate_field_22, Omml_Models_CTRPrOriginal::__lml_validate_field_23, Omml_Models_CTRPrOriginal::__lml_validate_field_24, Omml_Models_CTRPrOriginal::__lml_validate_field_25, Omml_Models_CTRPrOriginal::__lml_validate_field_26, Omml_Models_CTRPrOriginal::__lml_validate_field_27, Omml_Models_CTRPrOriginal::__lml_validate_field_28, Omml_Models_CTRPrOriginal::__lml_validate_field_29, Omml_Models_CTRPrOriginal::__lml_validate_field_30, Omml_Models_CTRPrOriginal::__lml_validate_field_31, Omml_Models_CTRPrOriginal::__lml_validate_field_32, Omml_Models_CTRPrOriginal::__lml_validate_field_33, Omml_Models_CTRPrOriginal::__lml_validate_field_34, Omml_Models_CTRPrOriginal::__lml_validate_field_35, Omml_Models_CTRPrOriginal::__lml_validate_field_36, Omml_Models_CTRPrOriginal::__lml_validate_field_37, Omml_Models_CTRPrOriginal::__lml_validate_field_38];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -8216,8 +8279,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRad, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRad::__lml_validate_field_0, Omml_Models_CTRad::__lml_validate_field_1, Omml_Models_CTRad::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRad, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRad::__lml_validate_field_0, Omml_Models_CTRad::__lml_validate_field_1, Omml_Models_CTRad::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -8253,8 +8317,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRadPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRadPr::__lml_validate_field_0, Omml_Models_CTRadPr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRadPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRadPr::__lml_validate_field_0, Omml_Models_CTRadPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -8309,8 +8374,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRuby, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRuby::__lml_validate_field_0, Omml_Models_CTRuby::__lml_validate_field_1, Omml_Models_CTRuby::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRuby, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRuby::__lml_validate_field_0, Omml_Models_CTRuby::__lml_validate_field_1, Omml_Models_CTRuby::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -8465,8 +8531,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRubyContent, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRubyContent::__lml_validate_field_0, Omml_Models_CTRubyContent::__lml_validate_field_1, Omml_Models_CTRubyContent::__lml_validate_field_2, Omml_Models_CTRubyContent::__lml_validate_field_3, Omml_Models_CTRubyContent::__lml_validate_field_4, Omml_Models_CTRubyContent::__lml_validate_field_5, Omml_Models_CTRubyContent::__lml_validate_field_6, Omml_Models_CTRubyContent::__lml_validate_field_7, Omml_Models_CTRubyContent::__lml_validate_field_8, Omml_Models_CTRubyContent::__lml_validate_field_9, Omml_Models_CTRubyContent::__lml_validate_field_10, Omml_Models_CTRubyContent::__lml_validate_field_11, Omml_Models_CTRubyContent::__lml_validate_field_12, Omml_Models_CTRubyContent::__lml_validate_field_13, Omml_Models_CTRubyContent::__lml_validate_field_14, Omml_Models_CTRubyContent::__lml_validate_field_15, Omml_Models_CTRubyContent::__lml_validate_field_16, Omml_Models_CTRubyContent::__lml_validate_field_17, Omml_Models_CTRubyContent::__lml_validate_field_18, Omml_Models_CTRubyContent::__lml_validate_field_19, Omml_Models_CTRubyContent::__lml_validate_field_20, Omml_Models_CTRubyContent::__lml_validate_field_21, Omml_Models_CTRubyContent::__lml_validate_field_22, Omml_Models_CTRubyContent::__lml_validate_field_23, Omml_Models_CTRubyContent::__lml_validate_field_24, Omml_Models_CTRubyContent::__lml_validate_field_25];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRubyContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRubyContent::__lml_validate_field_0, Omml_Models_CTRubyContent::__lml_validate_field_1, Omml_Models_CTRubyContent::__lml_validate_field_2, Omml_Models_CTRubyContent::__lml_validate_field_3, Omml_Models_CTRubyContent::__lml_validate_field_4, Omml_Models_CTRubyContent::__lml_validate_field_5, Omml_Models_CTRubyContent::__lml_validate_field_6, Omml_Models_CTRubyContent::__lml_validate_field_7, Omml_Models_CTRubyContent::__lml_validate_field_8, Omml_Models_CTRubyContent::__lml_validate_field_9, Omml_Models_CTRubyContent::__lml_validate_field_10, Omml_Models_CTRubyContent::__lml_validate_field_11, Omml_Models_CTRubyContent::__lml_validate_field_12, Omml_Models_CTRubyContent::__lml_validate_field_13, Omml_Models_CTRubyContent::__lml_validate_field_14, Omml_Models_CTRubyContent::__lml_validate_field_15, Omml_Models_CTRubyContent::__lml_validate_field_16, Omml_Models_CTRubyContent::__lml_validate_field_17, Omml_Models_CTRubyContent::__lml_validate_field_18, Omml_Models_CTRubyContent::__lml_validate_field_19, Omml_Models_CTRubyContent::__lml_validate_field_20, Omml_Models_CTRubyContent::__lml_validate_field_21, Omml_Models_CTRubyContent::__lml_validate_field_22, Omml_Models_CTRubyContent::__lml_validate_field_23, Omml_Models_CTRubyContent::__lml_validate_field_24, Omml_Models_CTRubyContent::__lml_validate_field_25];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -8610,8 +8677,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRubyPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRubyPr::__lml_validate_field_0, Omml_Models_CTRubyPr::__lml_validate_field_1, Omml_Models_CTRubyPr::__lml_validate_field_2, Omml_Models_CTRubyPr::__lml_validate_field_3, Omml_Models_CTRubyPr::__lml_validate_field_4, Omml_Models_CTRubyPr::__lml_validate_field_5];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRubyPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRubyPr::__lml_validate_field_0, Omml_Models_CTRubyPr::__lml_validate_field_1, Omml_Models_CTRubyPr::__lml_validate_field_2, Omml_Models_CTRubyPr::__lml_validate_field_3, Omml_Models_CTRubyPr::__lml_validate_field_4, Omml_Models_CTRubyPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -8806,8 +8874,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTRunTrackChange, bool)->Result<(),ValidationError>] = &[Omml_Models_CTRunTrackChange::__lml_validate_field_3, Omml_Models_CTRunTrackChange::__lml_validate_field_4, Omml_Models_CTRunTrackChange::__lml_validate_field_5, Omml_Models_CTRunTrackChange::__lml_validate_field_6, Omml_Models_CTRunTrackChange::__lml_validate_field_7, Omml_Models_CTRunTrackChange::__lml_validate_field_8, Omml_Models_CTRunTrackChange::__lml_validate_field_9, Omml_Models_CTRunTrackChange::__lml_validate_field_10, Omml_Models_CTRunTrackChange::__lml_validate_field_11, Omml_Models_CTRunTrackChange::__lml_validate_field_12, Omml_Models_CTRunTrackChange::__lml_validate_field_13, Omml_Models_CTRunTrackChange::__lml_validate_field_14, Omml_Models_CTRunTrackChange::__lml_validate_field_15, Omml_Models_CTRunTrackChange::__lml_validate_field_16, Omml_Models_CTRunTrackChange::__lml_validate_field_17, Omml_Models_CTRunTrackChange::__lml_validate_field_18, Omml_Models_CTRunTrackChange::__lml_validate_field_19, Omml_Models_CTRunTrackChange::__lml_validate_field_20, Omml_Models_CTRunTrackChange::__lml_validate_field_21, Omml_Models_CTRunTrackChange::__lml_validate_field_22, Omml_Models_CTRunTrackChange::__lml_validate_field_23, Omml_Models_CTRunTrackChange::__lml_validate_field_24, Omml_Models_CTRunTrackChange::__lml_validate_field_25, Omml_Models_CTRunTrackChange::__lml_validate_field_26, Omml_Models_CTRunTrackChange::__lml_validate_field_27, Omml_Models_CTRunTrackChange::__lml_validate_field_28, Omml_Models_CTRunTrackChange::__lml_validate_field_29, Omml_Models_CTRunTrackChange::__lml_validate_field_30, Omml_Models_CTRunTrackChange::__lml_validate_field_31, Omml_Models_CTRunTrackChange::__lml_validate_field_32, Omml_Models_CTRunTrackChange::__lml_validate_field_33, Omml_Models_CTRunTrackChange::__lml_validate_field_34, Omml_Models_CTRunTrackChange::__lml_validate_field_35, Omml_Models_CTRunTrackChange::__lml_validate_field_36, Omml_Models_CTRunTrackChange::__lml_validate_field_37, Omml_Models_CTRunTrackChange::__lml_validate_field_38, Omml_Models_CTRunTrackChange::__lml_validate_field_39, Omml_Models_CTRunTrackChange::__lml_validate_field_40, Omml_Models_CTRunTrackChange::__lml_validate_field_41, Omml_Models_CTRunTrackChange::__lml_validate_field_42, Omml_Models_CTRunTrackChange::__lml_validate_field_43, Omml_Models_CTRunTrackChange::__lml_validate_field_44, Omml_Models_CTRunTrackChange::__lml_validate_field_45, Omml_Models_CTRunTrackChange::__lml_validate_field_46, Omml_Models_CTRunTrackChange::__lml_validate_field_47, Omml_Models_CTRunTrackChange::__lml_validate_field_48, Omml_Models_CTRunTrackChange::__lml_validate_field_49, Omml_Models_CTRunTrackChange::__lml_validate_field_50];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTRunTrackChange, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRunTrackChange::__lml_validate_field_3, Omml_Models_CTRunTrackChange::__lml_validate_field_4, Omml_Models_CTRunTrackChange::__lml_validate_field_5, Omml_Models_CTRunTrackChange::__lml_validate_field_6, Omml_Models_CTRunTrackChange::__lml_validate_field_7, Omml_Models_CTRunTrackChange::__lml_validate_field_8, Omml_Models_CTRunTrackChange::__lml_validate_field_9, Omml_Models_CTRunTrackChange::__lml_validate_field_10, Omml_Models_CTRunTrackChange::__lml_validate_field_11, Omml_Models_CTRunTrackChange::__lml_validate_field_12, Omml_Models_CTRunTrackChange::__lml_validate_field_13, Omml_Models_CTRunTrackChange::__lml_validate_field_14, Omml_Models_CTRunTrackChange::__lml_validate_field_15, Omml_Models_CTRunTrackChange::__lml_validate_field_16, Omml_Models_CTRunTrackChange::__lml_validate_field_17, Omml_Models_CTRunTrackChange::__lml_validate_field_18, Omml_Models_CTRunTrackChange::__lml_validate_field_19, Omml_Models_CTRunTrackChange::__lml_validate_field_20, Omml_Models_CTRunTrackChange::__lml_validate_field_21, Omml_Models_CTRunTrackChange::__lml_validate_field_22, Omml_Models_CTRunTrackChange::__lml_validate_field_23, Omml_Models_CTRunTrackChange::__lml_validate_field_24, Omml_Models_CTRunTrackChange::__lml_validate_field_25, Omml_Models_CTRunTrackChange::__lml_validate_field_26, Omml_Models_CTRunTrackChange::__lml_validate_field_27, Omml_Models_CTRunTrackChange::__lml_validate_field_28, Omml_Models_CTRunTrackChange::__lml_validate_field_29, Omml_Models_CTRunTrackChange::__lml_validate_field_30, Omml_Models_CTRunTrackChange::__lml_validate_field_31, Omml_Models_CTRunTrackChange::__lml_validate_field_32, Omml_Models_CTRunTrackChange::__lml_validate_field_33, Omml_Models_CTRunTrackChange::__lml_validate_field_34, Omml_Models_CTRunTrackChange::__lml_validate_field_35, Omml_Models_CTRunTrackChange::__lml_validate_field_36, Omml_Models_CTRunTrackChange::__lml_validate_field_37, Omml_Models_CTRunTrackChange::__lml_validate_field_38, Omml_Models_CTRunTrackChange::__lml_validate_field_39, Omml_Models_CTRunTrackChange::__lml_validate_field_40, Omml_Models_CTRunTrackChange::__lml_validate_field_41, Omml_Models_CTRunTrackChange::__lml_validate_field_42, Omml_Models_CTRunTrackChange::__lml_validate_field_43, Omml_Models_CTRunTrackChange::__lml_validate_field_44, Omml_Models_CTRunTrackChange::__lml_validate_field_45, Omml_Models_CTRunTrackChange::__lml_validate_field_46, Omml_Models_CTRunTrackChange::__lml_validate_field_47, Omml_Models_CTRunTrackChange::__lml_validate_field_48, Omml_Models_CTRunTrackChange::__lml_validate_field_49, Omml_Models_CTRunTrackChange::__lml_validate_field_50];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if count==0{return Ok(true);}Ok(true)})()? {return Err(invalid("Omml::Models::CTRunTrackChange@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -9037,8 +9106,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSPre, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSPre::__lml_validate_field_0, Omml_Models_CTSPre::__lml_validate_field_1, Omml_Models_CTSPre::__lml_validate_field_2, Omml_Models_CTSPre::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSPre, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSPre::__lml_validate_field_0, Omml_Models_CTSPre::__lml_validate_field_1, Omml_Models_CTSPre::__lml_validate_field_2, Omml_Models_CTSPre::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTSPre@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "s_pre_pr" => match &self.s_pre_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -9082,8 +9152,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSPrePr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSPrePr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSPrePr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSPrePr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9114,8 +9185,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSSub, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSSub::__lml_validate_field_0, Omml_Models_CTSSub::__lml_validate_field_1, Omml_Models_CTSSub::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSSub, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSub::__lml_validate_field_0, Omml_Models_CTSSub::__lml_validate_field_1, Omml_Models_CTSSub::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9148,8 +9220,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSSubPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSSubPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSSubPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSubPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9186,8 +9259,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSSubSup, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSSubSup::__lml_validate_field_0, Omml_Models_CTSSubSup::__lml_validate_field_1, Omml_Models_CTSSubSup::__lml_validate_field_2, Omml_Models_CTSSubSup::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSSubSup, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSubSup::__lml_validate_field_0, Omml_Models_CTSSubSup::__lml_validate_field_1, Omml_Models_CTSSubSup::__lml_validate_field_2, Omml_Models_CTSSubSup::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTSSubSup@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "s_sub_sup_pr" => match &self.s_sub_sup_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -9234,8 +9308,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSSubSupPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSSubSupPr::__lml_validate_field_0, Omml_Models_CTSSubSupPr::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSSubSupPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSubSupPr::__lml_validate_field_0, Omml_Models_CTSSubSupPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9271,8 +9346,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSSup, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSSup::__lml_validate_field_0, Omml_Models_CTSSup::__lml_validate_field_1, Omml_Models_CTSSup::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSSup, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSup::__lml_validate_field_0, Omml_Models_CTSSup::__lml_validate_field_1, Omml_Models_CTSSup::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9305,8 +9381,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSSupPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSSupPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSSupPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSupPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9382,8 +9459,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtComboBox, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtComboBox::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtComboBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtComboBox::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9500,8 +9578,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtContentRun, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtContentRun::__lml_validate_field_0, Omml_Models_CTSdtContentRun::__lml_validate_field_1, Omml_Models_CTSdtContentRun::__lml_validate_field_2, Omml_Models_CTSdtContentRun::__lml_validate_field_3, Omml_Models_CTSdtContentRun::__lml_validate_field_4, Omml_Models_CTSdtContentRun::__lml_validate_field_5, Omml_Models_CTSdtContentRun::__lml_validate_field_6, Omml_Models_CTSdtContentRun::__lml_validate_field_7, Omml_Models_CTSdtContentRun::__lml_validate_field_8, Omml_Models_CTSdtContentRun::__lml_validate_field_9, Omml_Models_CTSdtContentRun::__lml_validate_field_10, Omml_Models_CTSdtContentRun::__lml_validate_field_11, Omml_Models_CTSdtContentRun::__lml_validate_field_12, Omml_Models_CTSdtContentRun::__lml_validate_field_13, Omml_Models_CTSdtContentRun::__lml_validate_field_14, Omml_Models_CTSdtContentRun::__lml_validate_field_15, Omml_Models_CTSdtContentRun::__lml_validate_field_16, Omml_Models_CTSdtContentRun::__lml_validate_field_17, Omml_Models_CTSdtContentRun::__lml_validate_field_18, Omml_Models_CTSdtContentRun::__lml_validate_field_19, Omml_Models_CTSdtContentRun::__lml_validate_field_20, Omml_Models_CTSdtContentRun::__lml_validate_field_21, Omml_Models_CTSdtContentRun::__lml_validate_field_22, Omml_Models_CTSdtContentRun::__lml_validate_field_23, Omml_Models_CTSdtContentRun::__lml_validate_field_24, Omml_Models_CTSdtContentRun::__lml_validate_field_25, Omml_Models_CTSdtContentRun::__lml_validate_field_26, Omml_Models_CTSdtContentRun::__lml_validate_field_27, Omml_Models_CTSdtContentRun::__lml_validate_field_28, Omml_Models_CTSdtContentRun::__lml_validate_field_29, Omml_Models_CTSdtContentRun::__lml_validate_field_30, Omml_Models_CTSdtContentRun::__lml_validate_field_31];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtContentRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtContentRun::__lml_validate_field_0, Omml_Models_CTSdtContentRun::__lml_validate_field_1, Omml_Models_CTSdtContentRun::__lml_validate_field_2, Omml_Models_CTSdtContentRun::__lml_validate_field_3, Omml_Models_CTSdtContentRun::__lml_validate_field_4, Omml_Models_CTSdtContentRun::__lml_validate_field_5, Omml_Models_CTSdtContentRun::__lml_validate_field_6, Omml_Models_CTSdtContentRun::__lml_validate_field_7, Omml_Models_CTSdtContentRun::__lml_validate_field_8, Omml_Models_CTSdtContentRun::__lml_validate_field_9, Omml_Models_CTSdtContentRun::__lml_validate_field_10, Omml_Models_CTSdtContentRun::__lml_validate_field_11, Omml_Models_CTSdtContentRun::__lml_validate_field_12, Omml_Models_CTSdtContentRun::__lml_validate_field_13, Omml_Models_CTSdtContentRun::__lml_validate_field_14, Omml_Models_CTSdtContentRun::__lml_validate_field_15, Omml_Models_CTSdtContentRun::__lml_validate_field_16, Omml_Models_CTSdtContentRun::__lml_validate_field_17, Omml_Models_CTSdtContentRun::__lml_validate_field_18, Omml_Models_CTSdtContentRun::__lml_validate_field_19, Omml_Models_CTSdtContentRun::__lml_validate_field_20, Omml_Models_CTSdtContentRun::__lml_validate_field_21, Omml_Models_CTSdtContentRun::__lml_validate_field_22, Omml_Models_CTSdtContentRun::__lml_validate_field_23, Omml_Models_CTSdtContentRun::__lml_validate_field_24, Omml_Models_CTSdtContentRun::__lml_validate_field_25, Omml_Models_CTSdtContentRun::__lml_validate_field_26, Omml_Models_CTSdtContentRun::__lml_validate_field_27, Omml_Models_CTSdtContentRun::__lml_validate_field_28, Omml_Models_CTSdtContentRun::__lml_validate_field_29, Omml_Models_CTSdtContentRun::__lml_validate_field_30, Omml_Models_CTSdtContentRun::__lml_validate_field_31];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9666,8 +9745,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtDate, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtDate::__lml_validate_field_0, Omml_Models_CTSdtDate::__lml_validate_field_1, Omml_Models_CTSdtDate::__lml_validate_field_2, Omml_Models_CTSdtDate::__lml_validate_field_3];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtDate, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtDate::__lml_validate_field_0, Omml_Models_CTSdtDate::__lml_validate_field_1, Omml_Models_CTSdtDate::__lml_validate_field_2, Omml_Models_CTSdtDate::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9752,8 +9832,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtDocPart, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtDocPart::__lml_validate_field_0, Omml_Models_CTSdtDocPart::__lml_validate_field_1, Omml_Models_CTSdtDocPart::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtDocPart, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtDocPart::__lml_validate_field_0, Omml_Models_CTSdtDocPart::__lml_validate_field_1, Omml_Models_CTSdtDocPart::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9791,8 +9872,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtDropDownList, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtDropDownList::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtDropDownList, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtDropDownList::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -9816,8 +9898,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtEndPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtEndPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtEndPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtEndPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.r_pr {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTSdtEndPr@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -9924,8 +10007,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtPr::__lml_validate_field_0, Omml_Models_CTSdtPr::__lml_validate_field_1, Omml_Models_CTSdtPr::__lml_validate_field_2, Omml_Models_CTSdtPr::__lml_validate_field_3, Omml_Models_CTSdtPr::__lml_validate_field_4, Omml_Models_CTSdtPr::__lml_validate_field_5, Omml_Models_CTSdtPr::__lml_validate_field_6, Omml_Models_CTSdtPr::__lml_validate_field_7, Omml_Models_CTSdtPr::__lml_validate_field_8, Omml_Models_CTSdtPr::__lml_validate_field_9, Omml_Models_CTSdtPr::__lml_validate_field_10, Omml_Models_CTSdtPr::__lml_validate_field_11, Omml_Models_CTSdtPr::__lml_validate_field_12, Omml_Models_CTSdtPr::__lml_validate_field_13, Omml_Models_CTSdtPr::__lml_validate_field_14, Omml_Models_CTSdtPr::__lml_validate_field_15, Omml_Models_CTSdtPr::__lml_validate_field_16, Omml_Models_CTSdtPr::__lml_validate_field_17, Omml_Models_CTSdtPr::__lml_validate_field_18, Omml_Models_CTSdtPr::__lml_validate_field_19, Omml_Models_CTSdtPr::__lml_validate_field_20];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtPr::__lml_validate_field_0, Omml_Models_CTSdtPr::__lml_validate_field_1, Omml_Models_CTSdtPr::__lml_validate_field_2, Omml_Models_CTSdtPr::__lml_validate_field_3, Omml_Models_CTSdtPr::__lml_validate_field_4, Omml_Models_CTSdtPr::__lml_validate_field_5, Omml_Models_CTSdtPr::__lml_validate_field_6, Omml_Models_CTSdtPr::__lml_validate_field_7, Omml_Models_CTSdtPr::__lml_validate_field_8, Omml_Models_CTSdtPr::__lml_validate_field_9, Omml_Models_CTSdtPr::__lml_validate_field_10, Omml_Models_CTSdtPr::__lml_validate_field_11, Omml_Models_CTSdtPr::__lml_validate_field_12, Omml_Models_CTSdtPr::__lml_validate_field_13, Omml_Models_CTSdtPr::__lml_validate_field_14, Omml_Models_CTSdtPr::__lml_validate_field_15, Omml_Models_CTSdtPr::__lml_validate_field_16, Omml_Models_CTSdtPr::__lml_validate_field_17, Omml_Models_CTSdtPr::__lml_validate_field_18, Omml_Models_CTSdtPr::__lml_validate_field_19, Omml_Models_CTSdtPr::__lml_validate_field_20];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.r_pr {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.alias {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.lock {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.placeholder {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.showing_plc_hdr {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.data_binding {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.temporary {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.id {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.tag {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if (||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.equation {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.combo_box {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.date {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.doc_part_obj {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.doc_part_list {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.drop_down_list {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.picture {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.rich_text {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.text {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.citation {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.group {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.bibliography {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count>1 {return Err(invalid("Omml::Models::CTSdtPr@omml","","choice_upper_bound"));}Ok(true)})()? {count+=1;}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTSdtPr@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -10036,8 +10120,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSdtRun, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSdtRun::__lml_validate_field_0, Omml_Models_CTSdtRun::__lml_validate_field_1, Omml_Models_CTSdtRun::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtRun::__lml_validate_field_0, Omml_Models_CTSdtRun::__lml_validate_field_1, Omml_Models_CTSdtRun::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -10677,8 +10762,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSimpleField, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSimpleField::__lml_validate_field_0, Omml_Models_CTSimpleField::__lml_validate_field_4, Omml_Models_CTSimpleField::__lml_validate_field_5, Omml_Models_CTSimpleField::__lml_validate_field_6, Omml_Models_CTSimpleField::__lml_validate_field_7, Omml_Models_CTSimpleField::__lml_validate_field_8, Omml_Models_CTSimpleField::__lml_validate_field_9, Omml_Models_CTSimpleField::__lml_validate_field_10, Omml_Models_CTSimpleField::__lml_validate_field_11, Omml_Models_CTSimpleField::__lml_validate_field_12, Omml_Models_CTSimpleField::__lml_validate_field_13, Omml_Models_CTSimpleField::__lml_validate_field_14, Omml_Models_CTSimpleField::__lml_validate_field_15, Omml_Models_CTSimpleField::__lml_validate_field_16, Omml_Models_CTSimpleField::__lml_validate_field_17, Omml_Models_CTSimpleField::__lml_validate_field_18, Omml_Models_CTSimpleField::__lml_validate_field_19, Omml_Models_CTSimpleField::__lml_validate_field_20, Omml_Models_CTSimpleField::__lml_validate_field_21, Omml_Models_CTSimpleField::__lml_validate_field_22, Omml_Models_CTSimpleField::__lml_validate_field_23, Omml_Models_CTSimpleField::__lml_validate_field_24, Omml_Models_CTSimpleField::__lml_validate_field_25, Omml_Models_CTSimpleField::__lml_validate_field_26, Omml_Models_CTSimpleField::__lml_validate_field_27, Omml_Models_CTSimpleField::__lml_validate_field_28, Omml_Models_CTSimpleField::__lml_validate_field_29, Omml_Models_CTSimpleField::__lml_validate_field_30, Omml_Models_CTSimpleField::__lml_validate_field_31, Omml_Models_CTSimpleField::__lml_validate_field_32, Omml_Models_CTSimpleField::__lml_validate_field_33, Omml_Models_CTSimpleField::__lml_validate_field_34, Omml_Models_CTSimpleField::__lml_validate_field_35];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSimpleField, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSimpleField::__lml_validate_field_0, Omml_Models_CTSimpleField::__lml_validate_field_4, Omml_Models_CTSimpleField::__lml_validate_field_5, Omml_Models_CTSimpleField::__lml_validate_field_6, Omml_Models_CTSimpleField::__lml_validate_field_7, Omml_Models_CTSimpleField::__lml_validate_field_8, Omml_Models_CTSimpleField::__lml_validate_field_9, Omml_Models_CTSimpleField::__lml_validate_field_10, Omml_Models_CTSimpleField::__lml_validate_field_11, Omml_Models_CTSimpleField::__lml_validate_field_12, Omml_Models_CTSimpleField::__lml_validate_field_13, Omml_Models_CTSimpleField::__lml_validate_field_14, Omml_Models_CTSimpleField::__lml_validate_field_15, Omml_Models_CTSimpleField::__lml_validate_field_16, Omml_Models_CTSimpleField::__lml_validate_field_17, Omml_Models_CTSimpleField::__lml_validate_field_18, Omml_Models_CTSimpleField::__lml_validate_field_19, Omml_Models_CTSimpleField::__lml_validate_field_20, Omml_Models_CTSimpleField::__lml_validate_field_21, Omml_Models_CTSimpleField::__lml_validate_field_22, Omml_Models_CTSimpleField::__lml_validate_field_23, Omml_Models_CTSimpleField::__lml_validate_field_24, Omml_Models_CTSimpleField::__lml_validate_field_25, Omml_Models_CTSimpleField::__lml_validate_field_26, Omml_Models_CTSimpleField::__lml_validate_field_27, Omml_Models_CTSimpleField::__lml_validate_field_28, Omml_Models_CTSimpleField::__lml_validate_field_29, Omml_Models_CTSimpleField::__lml_validate_field_30, Omml_Models_CTSimpleField::__lml_validate_field_31, Omml_Models_CTSimpleField::__lml_validate_field_32, Omml_Models_CTSimpleField::__lml_validate_field_33, Omml_Models_CTSimpleField::__lml_validate_field_34, Omml_Models_CTSimpleField::__lml_validate_field_35];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -10836,8 +10922,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSmartTagPr, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSmartTagPr::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSmartTagPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSmartTagPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -10963,8 +11050,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTSmartTagRun, bool)->Result<(),ValidationError>] = &[Omml_Models_CTSmartTagRun::__lml_validate_field_0, Omml_Models_CTSmartTagRun::__lml_validate_field_3, Omml_Models_CTSmartTagRun::__lml_validate_field_4, Omml_Models_CTSmartTagRun::__lml_validate_field_5, Omml_Models_CTSmartTagRun::__lml_validate_field_6, Omml_Models_CTSmartTagRun::__lml_validate_field_7, Omml_Models_CTSmartTagRun::__lml_validate_field_8, Omml_Models_CTSmartTagRun::__lml_validate_field_9, Omml_Models_CTSmartTagRun::__lml_validate_field_10, Omml_Models_CTSmartTagRun::__lml_validate_field_11, Omml_Models_CTSmartTagRun::__lml_validate_field_12, Omml_Models_CTSmartTagRun::__lml_validate_field_13, Omml_Models_CTSmartTagRun::__lml_validate_field_14, Omml_Models_CTSmartTagRun::__lml_validate_field_15, Omml_Models_CTSmartTagRun::__lml_validate_field_16, Omml_Models_CTSmartTagRun::__lml_validate_field_17, Omml_Models_CTSmartTagRun::__lml_validate_field_18, Omml_Models_CTSmartTagRun::__lml_validate_field_19, Omml_Models_CTSmartTagRun::__lml_validate_field_20, Omml_Models_CTSmartTagRun::__lml_validate_field_21, Omml_Models_CTSmartTagRun::__lml_validate_field_22, Omml_Models_CTSmartTagRun::__lml_validate_field_23, Omml_Models_CTSmartTagRun::__lml_validate_field_24, Omml_Models_CTSmartTagRun::__lml_validate_field_25, Omml_Models_CTSmartTagRun::__lml_validate_field_26, Omml_Models_CTSmartTagRun::__lml_validate_field_27, Omml_Models_CTSmartTagRun::__lml_validate_field_28, Omml_Models_CTSmartTagRun::__lml_validate_field_29, Omml_Models_CTSmartTagRun::__lml_validate_field_30, Omml_Models_CTSmartTagRun::__lml_validate_field_31, Omml_Models_CTSmartTagRun::__lml_validate_field_32, Omml_Models_CTSmartTagRun::__lml_validate_field_33, Omml_Models_CTSmartTagRun::__lml_validate_field_34];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSmartTagRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSmartTagRun::__lml_validate_field_0, Omml_Models_CTSmartTagRun::__lml_validate_field_3, Omml_Models_CTSmartTagRun::__lml_validate_field_4, Omml_Models_CTSmartTagRun::__lml_validate_field_5, Omml_Models_CTSmartTagRun::__lml_validate_field_6, Omml_Models_CTSmartTagRun::__lml_validate_field_7, Omml_Models_CTSmartTagRun::__lml_validate_field_8, Omml_Models_CTSmartTagRun::__lml_validate_field_9, Omml_Models_CTSmartTagRun::__lml_validate_field_10, Omml_Models_CTSmartTagRun::__lml_validate_field_11, Omml_Models_CTSmartTagRun::__lml_validate_field_12, Omml_Models_CTSmartTagRun::__lml_validate_field_13, Omml_Models_CTSmartTagRun::__lml_validate_field_14, Omml_Models_CTSmartTagRun::__lml_validate_field_15, Omml_Models_CTSmartTagRun::__lml_validate_field_16, Omml_Models_CTSmartTagRun::__lml_validate_field_17, Omml_Models_CTSmartTagRun::__lml_validate_field_18, Omml_Models_CTSmartTagRun::__lml_validate_field_19, Omml_Models_CTSmartTagRun::__lml_validate_field_20, Omml_Models_CTSmartTagRun::__lml_validate_field_21, Omml_Models_CTSmartTagRun::__lml_validate_field_22, Omml_Models_CTSmartTagRun::__lml_validate_field_23, Omml_Models_CTSmartTagRun::__lml_validate_field_24, Omml_Models_CTSmartTagRun::__lml_validate_field_25, Omml_Models_CTSmartTagRun::__lml_validate_field_26, Omml_Models_CTSmartTagRun::__lml_validate_field_27, Omml_Models_CTSmartTagRun::__lml_validate_field_28, Omml_Models_CTSmartTagRun::__lml_validate_field_29, Omml_Models_CTSmartTagRun::__lml_validate_field_30, Omml_Models_CTSmartTagRun::__lml_validate_field_31, Omml_Models_CTSmartTagRun::__lml_validate_field_32, Omml_Models_CTSmartTagRun::__lml_validate_field_33, Omml_Models_CTSmartTagRun::__lml_validate_field_34];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -11791,8 +11879,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTWrapPath, bool)->Result<(),ValidationError>] = &[Omml_Models_CTWrapPath::__lml_validate_field_0, Omml_Models_CTWrapPath::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapPath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapPath::__lml_validate_field_0, Omml_Models_CTWrapPath::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -11860,8 +11949,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTWrapSquare, bool)->Result<(),ValidationError>] = &[Omml_Models_CTWrapSquare::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapSquare, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapSquare::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -11918,8 +12008,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTWrapThrough, bool)->Result<(),ValidationError>] = &[Omml_Models_CTWrapThrough::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapThrough, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapThrough::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -11976,8 +12067,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTWrapTight, bool)->Result<(),ValidationError>] = &[Omml_Models_CTWrapTight::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapTight, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapTight::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -12008,8 +12100,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_CTWrapTopBottom, bool)->Result<(),ValidationError>] = &[Omml_Models_CTWrapTopBottom::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapTopBottom, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapTopBottom::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 Ok(()) }
 #[inline(never)]
 fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
@@ -12196,8 +12289,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGContentRunContent, bool)->Result<(),ValidationError>] = &[Omml_Models_EGContentRunContent::__lml_validate_field_0, Omml_Models_EGContentRunContent::__lml_validate_field_1, Omml_Models_EGContentRunContent::__lml_validate_field_2, Omml_Models_EGContentRunContent::__lml_validate_field_3, Omml_Models_EGContentRunContent::__lml_validate_field_4, Omml_Models_EGContentRunContent::__lml_validate_field_5, Omml_Models_EGContentRunContent::__lml_validate_field_6, Omml_Models_EGContentRunContent::__lml_validate_field_7, Omml_Models_EGContentRunContent::__lml_validate_field_8, Omml_Models_EGContentRunContent::__lml_validate_field_9, Omml_Models_EGContentRunContent::__lml_validate_field_10, Omml_Models_EGContentRunContent::__lml_validate_field_11, Omml_Models_EGContentRunContent::__lml_validate_field_12, Omml_Models_EGContentRunContent::__lml_validate_field_13, Omml_Models_EGContentRunContent::__lml_validate_field_14, Omml_Models_EGContentRunContent::__lml_validate_field_15, Omml_Models_EGContentRunContent::__lml_validate_field_16, Omml_Models_EGContentRunContent::__lml_validate_field_17, Omml_Models_EGContentRunContent::__lml_validate_field_18, Omml_Models_EGContentRunContent::__lml_validate_field_19, Omml_Models_EGContentRunContent::__lml_validate_field_20, Omml_Models_EGContentRunContent::__lml_validate_field_21, Omml_Models_EGContentRunContent::__lml_validate_field_22, Omml_Models_EGContentRunContent::__lml_validate_field_23, Omml_Models_EGContentRunContent::__lml_validate_field_24, Omml_Models_EGContentRunContent::__lml_validate_field_25, Omml_Models_EGContentRunContent::__lml_validate_field_26, Omml_Models_EGContentRunContent::__lml_validate_field_27, Omml_Models_EGContentRunContent::__lml_validate_field_28];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGContentRunContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGContentRunContent::__lml_validate_field_0, Omml_Models_EGContentRunContent::__lml_validate_field_1, Omml_Models_EGContentRunContent::__lml_validate_field_2, Omml_Models_EGContentRunContent::__lml_validate_field_3, Omml_Models_EGContentRunContent::__lml_validate_field_4, Omml_Models_EGContentRunContent::__lml_validate_field_5, Omml_Models_EGContentRunContent::__lml_validate_field_6, Omml_Models_EGContentRunContent::__lml_validate_field_7, Omml_Models_EGContentRunContent::__lml_validate_field_8, Omml_Models_EGContentRunContent::__lml_validate_field_9, Omml_Models_EGContentRunContent::__lml_validate_field_10, Omml_Models_EGContentRunContent::__lml_validate_field_11, Omml_Models_EGContentRunContent::__lml_validate_field_12, Omml_Models_EGContentRunContent::__lml_validate_field_13, Omml_Models_EGContentRunContent::__lml_validate_field_14, Omml_Models_EGContentRunContent::__lml_validate_field_15, Omml_Models_EGContentRunContent::__lml_validate_field_16, Omml_Models_EGContentRunContent::__lml_validate_field_17, Omml_Models_EGContentRunContent::__lml_validate_field_18, Omml_Models_EGContentRunContent::__lml_validate_field_19, Omml_Models_EGContentRunContent::__lml_validate_field_20, Omml_Models_EGContentRunContent::__lml_validate_field_21, Omml_Models_EGContentRunContent::__lml_validate_field_22, Omml_Models_EGContentRunContent::__lml_validate_field_23, Omml_Models_EGContentRunContent::__lml_validate_field_24, Omml_Models_EGContentRunContent::__lml_validate_field_25, Omml_Models_EGContentRunContent::__lml_validate_field_26, Omml_Models_EGContentRunContent::__lml_validate_field_27, Omml_Models_EGContentRunContent::__lml_validate_field_28];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.custom_xml {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.smart_tag {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.sdt {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.r {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGContentRunContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGContentRunContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -12342,8 +12436,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGMathContent, bool)->Result<(),ValidationError>] = &[Omml_Models_EGMathContent::__lml_validate_field_0, Omml_Models_EGMathContent::__lml_validate_field_1];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGMathContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGMathContent::__lml_validate_field_0, Omml_Models_EGMathContent::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.o_math_para {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.o_math {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGMathContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGMathContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -12504,8 +12599,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGOMathElements, bool)->Result<(),ValidationError>] = &[Omml_Models_EGOMathElements::__lml_validate_field_0, Omml_Models_EGOMathElements::__lml_validate_field_1, Omml_Models_EGOMathElements::__lml_validate_field_2, Omml_Models_EGOMathElements::__lml_validate_field_3, Omml_Models_EGOMathElements::__lml_validate_field_4, Omml_Models_EGOMathElements::__lml_validate_field_5, Omml_Models_EGOMathElements::__lml_validate_field_6, Omml_Models_EGOMathElements::__lml_validate_field_7, Omml_Models_EGOMathElements::__lml_validate_field_8, Omml_Models_EGOMathElements::__lml_validate_field_9, Omml_Models_EGOMathElements::__lml_validate_field_10, Omml_Models_EGOMathElements::__lml_validate_field_11, Omml_Models_EGOMathElements::__lml_validate_field_12, Omml_Models_EGOMathElements::__lml_validate_field_13, Omml_Models_EGOMathElements::__lml_validate_field_14, Omml_Models_EGOMathElements::__lml_validate_field_15, Omml_Models_EGOMathElements::__lml_validate_field_16, Omml_Models_EGOMathElements::__lml_validate_field_17, Omml_Models_EGOMathElements::__lml_validate_field_18, Omml_Models_EGOMathElements::__lml_validate_field_19, Omml_Models_EGOMathElements::__lml_validate_field_20, Omml_Models_EGOMathElements::__lml_validate_field_21, Omml_Models_EGOMathElements::__lml_validate_field_22, Omml_Models_EGOMathElements::__lml_validate_field_23, Omml_Models_EGOMathElements::__lml_validate_field_24, Omml_Models_EGOMathElements::__lml_validate_field_25, Omml_Models_EGOMathElements::__lml_validate_field_26, Omml_Models_EGOMathElements::__lml_validate_field_27, Omml_Models_EGOMathElements::__lml_validate_field_28, Omml_Models_EGOMathElements::__lml_validate_field_29, Omml_Models_EGOMathElements::__lml_validate_field_30, Omml_Models_EGOMathElements::__lml_validate_field_31, Omml_Models_EGOMathElements::__lml_validate_field_32, Omml_Models_EGOMathElements::__lml_validate_field_33, Omml_Models_EGOMathElements::__lml_validate_field_34, Omml_Models_EGOMathElements::__lml_validate_field_35, Omml_Models_EGOMathElements::__lml_validate_field_36, Omml_Models_EGOMathElements::__lml_validate_field_37, Omml_Models_EGOMathElements::__lml_validate_field_38, Omml_Models_EGOMathElements::__lml_validate_field_39, Omml_Models_EGOMathElements::__lml_validate_field_40, Omml_Models_EGOMathElements::__lml_validate_field_41, Omml_Models_EGOMathElements::__lml_validate_field_42, Omml_Models_EGOMathElements::__lml_validate_field_43, Omml_Models_EGOMathElements::__lml_validate_field_44];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGOMathElements, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGOMathElements::__lml_validate_field_0, Omml_Models_EGOMathElements::__lml_validate_field_1, Omml_Models_EGOMathElements::__lml_validate_field_2, Omml_Models_EGOMathElements::__lml_validate_field_3, Omml_Models_EGOMathElements::__lml_validate_field_4, Omml_Models_EGOMathElements::__lml_validate_field_5, Omml_Models_EGOMathElements::__lml_validate_field_6, Omml_Models_EGOMathElements::__lml_validate_field_7, Omml_Models_EGOMathElements::__lml_validate_field_8, Omml_Models_EGOMathElements::__lml_validate_field_9, Omml_Models_EGOMathElements::__lml_validate_field_10, Omml_Models_EGOMathElements::__lml_validate_field_11, Omml_Models_EGOMathElements::__lml_validate_field_12, Omml_Models_EGOMathElements::__lml_validate_field_13, Omml_Models_EGOMathElements::__lml_validate_field_14, Omml_Models_EGOMathElements::__lml_validate_field_15, Omml_Models_EGOMathElements::__lml_validate_field_16, Omml_Models_EGOMathElements::__lml_validate_field_17, Omml_Models_EGOMathElements::__lml_validate_field_18, Omml_Models_EGOMathElements::__lml_validate_field_19, Omml_Models_EGOMathElements::__lml_validate_field_20, Omml_Models_EGOMathElements::__lml_validate_field_21, Omml_Models_EGOMathElements::__lml_validate_field_22, Omml_Models_EGOMathElements::__lml_validate_field_23, Omml_Models_EGOMathElements::__lml_validate_field_24, Omml_Models_EGOMathElements::__lml_validate_field_25, Omml_Models_EGOMathElements::__lml_validate_field_26, Omml_Models_EGOMathElements::__lml_validate_field_27, Omml_Models_EGOMathElements::__lml_validate_field_28, Omml_Models_EGOMathElements::__lml_validate_field_29, Omml_Models_EGOMathElements::__lml_validate_field_30, Omml_Models_EGOMathElements::__lml_validate_field_31, Omml_Models_EGOMathElements::__lml_validate_field_32, Omml_Models_EGOMathElements::__lml_validate_field_33, Omml_Models_EGOMathElements::__lml_validate_field_34, Omml_Models_EGOMathElements::__lml_validate_field_35, Omml_Models_EGOMathElements::__lml_validate_field_36, Omml_Models_EGOMathElements::__lml_validate_field_37, Omml_Models_EGOMathElements::__lml_validate_field_38, Omml_Models_EGOMathElements::__lml_validate_field_39, Omml_Models_EGOMathElements::__lml_validate_field_40, Omml_Models_EGOMathElements::__lml_validate_field_41, Omml_Models_EGOMathElements::__lml_validate_field_42, Omml_Models_EGOMathElements::__lml_validate_field_43, Omml_Models_EGOMathElements::__lml_validate_field_44];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGOMathElements@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGOMathElements@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -12768,8 +12864,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGOMathMathElements, bool)->Result<(),ValidationError>] = &[Omml_Models_EGOMathMathElements::__lml_validate_field_0, Omml_Models_EGOMathMathElements::__lml_validate_field_1, Omml_Models_EGOMathMathElements::__lml_validate_field_2, Omml_Models_EGOMathMathElements::__lml_validate_field_3, Omml_Models_EGOMathMathElements::__lml_validate_field_4, Omml_Models_EGOMathMathElements::__lml_validate_field_5, Omml_Models_EGOMathMathElements::__lml_validate_field_6, Omml_Models_EGOMathMathElements::__lml_validate_field_7, Omml_Models_EGOMathMathElements::__lml_validate_field_8, Omml_Models_EGOMathMathElements::__lml_validate_field_9, Omml_Models_EGOMathMathElements::__lml_validate_field_10, Omml_Models_EGOMathMathElements::__lml_validate_field_11, Omml_Models_EGOMathMathElements::__lml_validate_field_12, Omml_Models_EGOMathMathElements::__lml_validate_field_13, Omml_Models_EGOMathMathElements::__lml_validate_field_14, Omml_Models_EGOMathMathElements::__lml_validate_field_15, Omml_Models_EGOMathMathElements::__lml_validate_field_16, Omml_Models_EGOMathMathElements::__lml_validate_field_17, Omml_Models_EGOMathMathElements::__lml_validate_field_18, Omml_Models_EGOMathMathElements::__lml_validate_field_19];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGOMathMathElements, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGOMathMathElements::__lml_validate_field_0, Omml_Models_EGOMathMathElements::__lml_validate_field_1, Omml_Models_EGOMathMathElements::__lml_validate_field_2, Omml_Models_EGOMathMathElements::__lml_validate_field_3, Omml_Models_EGOMathMathElements::__lml_validate_field_4, Omml_Models_EGOMathMathElements::__lml_validate_field_5, Omml_Models_EGOMathMathElements::__lml_validate_field_6, Omml_Models_EGOMathMathElements::__lml_validate_field_7, Omml_Models_EGOMathMathElements::__lml_validate_field_8, Omml_Models_EGOMathMathElements::__lml_validate_field_9, Omml_Models_EGOMathMathElements::__lml_validate_field_10, Omml_Models_EGOMathMathElements::__lml_validate_field_11, Omml_Models_EGOMathMathElements::__lml_validate_field_12, Omml_Models_EGOMathMathElements::__lml_validate_field_13, Omml_Models_EGOMathMathElements::__lml_validate_field_14, Omml_Models_EGOMathMathElements::__lml_validate_field_15, Omml_Models_EGOMathMathElements::__lml_validate_field_16, Omml_Models_EGOMathMathElements::__lml_validate_field_17, Omml_Models_EGOMathMathElements::__lml_validate_field_18, Omml_Models_EGOMathMathElements::__lml_validate_field_19];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.acc {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.bar {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.box_ {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.border_box {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.d {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.eq_arr {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.f {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.func {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.group_chr {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.lim_low {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.lim_upp {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.m {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.nary {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.phant {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.rad {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_pre {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_sub {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_sub_sup {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_sup {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.r {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGOMathMathElements@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGOMathMathElements@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -12963,8 +13060,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGPContent, bool)->Result<(),ValidationError>] = &[Omml_Models_EGPContent::__lml_validate_field_0, Omml_Models_EGPContent::__lml_validate_field_1, Omml_Models_EGPContent::__lml_validate_field_2, Omml_Models_EGPContent::__lml_validate_field_3, Omml_Models_EGPContent::__lml_validate_field_4, Omml_Models_EGPContent::__lml_validate_field_5, Omml_Models_EGPContent::__lml_validate_field_6, Omml_Models_EGPContent::__lml_validate_field_7, Omml_Models_EGPContent::__lml_validate_field_8, Omml_Models_EGPContent::__lml_validate_field_9, Omml_Models_EGPContent::__lml_validate_field_10, Omml_Models_EGPContent::__lml_validate_field_11, Omml_Models_EGPContent::__lml_validate_field_12, Omml_Models_EGPContent::__lml_validate_field_13, Omml_Models_EGPContent::__lml_validate_field_14, Omml_Models_EGPContent::__lml_validate_field_15, Omml_Models_EGPContent::__lml_validate_field_16, Omml_Models_EGPContent::__lml_validate_field_17, Omml_Models_EGPContent::__lml_validate_field_18, Omml_Models_EGPContent::__lml_validate_field_19, Omml_Models_EGPContent::__lml_validate_field_20, Omml_Models_EGPContent::__lml_validate_field_21, Omml_Models_EGPContent::__lml_validate_field_22, Omml_Models_EGPContent::__lml_validate_field_23, Omml_Models_EGPContent::__lml_validate_field_24, Omml_Models_EGPContent::__lml_validate_field_25, Omml_Models_EGPContent::__lml_validate_field_26, Omml_Models_EGPContent::__lml_validate_field_27, Omml_Models_EGPContent::__lml_validate_field_28, Omml_Models_EGPContent::__lml_validate_field_29, Omml_Models_EGPContent::__lml_validate_field_30, Omml_Models_EGPContent::__lml_validate_field_31];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGPContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGPContent::__lml_validate_field_0, Omml_Models_EGPContent::__lml_validate_field_1, Omml_Models_EGPContent::__lml_validate_field_2, Omml_Models_EGPContent::__lml_validate_field_3, Omml_Models_EGPContent::__lml_validate_field_4, Omml_Models_EGPContent::__lml_validate_field_5, Omml_Models_EGPContent::__lml_validate_field_6, Omml_Models_EGPContent::__lml_validate_field_7, Omml_Models_EGPContent::__lml_validate_field_8, Omml_Models_EGPContent::__lml_validate_field_9, Omml_Models_EGPContent::__lml_validate_field_10, Omml_Models_EGPContent::__lml_validate_field_11, Omml_Models_EGPContent::__lml_validate_field_12, Omml_Models_EGPContent::__lml_validate_field_13, Omml_Models_EGPContent::__lml_validate_field_14, Omml_Models_EGPContent::__lml_validate_field_15, Omml_Models_EGPContent::__lml_validate_field_16, Omml_Models_EGPContent::__lml_validate_field_17, Omml_Models_EGPContent::__lml_validate_field_18, Omml_Models_EGPContent::__lml_validate_field_19, Omml_Models_EGPContent::__lml_validate_field_20, Omml_Models_EGPContent::__lml_validate_field_21, Omml_Models_EGPContent::__lml_validate_field_22, Omml_Models_EGPContent::__lml_validate_field_23, Omml_Models_EGPContent::__lml_validate_field_24, Omml_Models_EGPContent::__lml_validate_field_25, Omml_Models_EGPContent::__lml_validate_field_26, Omml_Models_EGPContent::__lml_validate_field_27, Omml_Models_EGPContent::__lml_validate_field_28, Omml_Models_EGPContent::__lml_validate_field_29, Omml_Models_EGPContent::__lml_validate_field_30, Omml_Models_EGPContent::__lml_validate_field_31];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.fld_simple {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.hyperlink {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.sub_doc {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGPContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGPContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -13124,8 +13222,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGRPrMath, bool)->Result<(),ValidationError>] = &[Omml_Models_EGRPrMath::__lml_validate_field_0, Omml_Models_EGRPrMath::__lml_validate_field_1, Omml_Models_EGRPrMath::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGRPrMath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRPrMath::__lml_validate_field_0, Omml_Models_EGRPrMath::__lml_validate_field_1, Omml_Models_EGRPrMath::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.ins {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.del {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRPrMath@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRPrMath@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -13204,8 +13303,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGRangeMarkupElements, bool)->Result<(),ValidationError>] = &[Omml_Models_EGRangeMarkupElements::__lml_validate_field_0, Omml_Models_EGRangeMarkupElements::__lml_validate_field_1, Omml_Models_EGRangeMarkupElements::__lml_validate_field_2, Omml_Models_EGRangeMarkupElements::__lml_validate_field_3, Omml_Models_EGRangeMarkupElements::__lml_validate_field_4, Omml_Models_EGRangeMarkupElements::__lml_validate_field_5, Omml_Models_EGRangeMarkupElements::__lml_validate_field_6, Omml_Models_EGRangeMarkupElements::__lml_validate_field_7, Omml_Models_EGRangeMarkupElements::__lml_validate_field_8, Omml_Models_EGRangeMarkupElements::__lml_validate_field_9, Omml_Models_EGRangeMarkupElements::__lml_validate_field_10, Omml_Models_EGRangeMarkupElements::__lml_validate_field_11, Omml_Models_EGRangeMarkupElements::__lml_validate_field_12, Omml_Models_EGRangeMarkupElements::__lml_validate_field_13, Omml_Models_EGRangeMarkupElements::__lml_validate_field_14, Omml_Models_EGRangeMarkupElements::__lml_validate_field_15];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGRangeMarkupElements, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRangeMarkupElements::__lml_validate_field_0, Omml_Models_EGRangeMarkupElements::__lml_validate_field_1, Omml_Models_EGRangeMarkupElements::__lml_validate_field_2, Omml_Models_EGRangeMarkupElements::__lml_validate_field_3, Omml_Models_EGRangeMarkupElements::__lml_validate_field_4, Omml_Models_EGRangeMarkupElements::__lml_validate_field_5, Omml_Models_EGRangeMarkupElements::__lml_validate_field_6, Omml_Models_EGRangeMarkupElements::__lml_validate_field_7, Omml_Models_EGRangeMarkupElements::__lml_validate_field_8, Omml_Models_EGRangeMarkupElements::__lml_validate_field_9, Omml_Models_EGRangeMarkupElements::__lml_validate_field_10, Omml_Models_EGRangeMarkupElements::__lml_validate_field_11, Omml_Models_EGRangeMarkupElements::__lml_validate_field_12, Omml_Models_EGRangeMarkupElements::__lml_validate_field_13, Omml_Models_EGRangeMarkupElements::__lml_validate_field_14, Omml_Models_EGRangeMarkupElements::__lml_validate_field_15];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.bookmark_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.bookmark_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_from_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_from_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_to_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_to_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.comment_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.comment_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_ins_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_ins_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_del_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_del_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_from_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_from_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_to_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_to_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRangeMarkupElements@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRangeMarkupElements@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -13365,8 +13465,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGRubyContent, bool)->Result<(),ValidationError>] = &[Omml_Models_EGRubyContent::__lml_validate_field_0, Omml_Models_EGRubyContent::__lml_validate_field_1, Omml_Models_EGRubyContent::__lml_validate_field_2, Omml_Models_EGRubyContent::__lml_validate_field_3, Omml_Models_EGRubyContent::__lml_validate_field_4, Omml_Models_EGRubyContent::__lml_validate_field_5, Omml_Models_EGRubyContent::__lml_validate_field_6, Omml_Models_EGRubyContent::__lml_validate_field_7, Omml_Models_EGRubyContent::__lml_validate_field_8, Omml_Models_EGRubyContent::__lml_validate_field_9, Omml_Models_EGRubyContent::__lml_validate_field_10, Omml_Models_EGRubyContent::__lml_validate_field_11, Omml_Models_EGRubyContent::__lml_validate_field_12, Omml_Models_EGRubyContent::__lml_validate_field_13, Omml_Models_EGRubyContent::__lml_validate_field_14, Omml_Models_EGRubyContent::__lml_validate_field_15, Omml_Models_EGRubyContent::__lml_validate_field_16, Omml_Models_EGRubyContent::__lml_validate_field_17, Omml_Models_EGRubyContent::__lml_validate_field_18, Omml_Models_EGRubyContent::__lml_validate_field_19, Omml_Models_EGRubyContent::__lml_validate_field_20, Omml_Models_EGRubyContent::__lml_validate_field_21, Omml_Models_EGRubyContent::__lml_validate_field_22, Omml_Models_EGRubyContent::__lml_validate_field_23, Omml_Models_EGRubyContent::__lml_validate_field_24, Omml_Models_EGRubyContent::__lml_validate_field_25];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGRubyContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRubyContent::__lml_validate_field_0, Omml_Models_EGRubyContent::__lml_validate_field_1, Omml_Models_EGRubyContent::__lml_validate_field_2, Omml_Models_EGRubyContent::__lml_validate_field_3, Omml_Models_EGRubyContent::__lml_validate_field_4, Omml_Models_EGRubyContent::__lml_validate_field_5, Omml_Models_EGRubyContent::__lml_validate_field_6, Omml_Models_EGRubyContent::__lml_validate_field_7, Omml_Models_EGRubyContent::__lml_validate_field_8, Omml_Models_EGRubyContent::__lml_validate_field_9, Omml_Models_EGRubyContent::__lml_validate_field_10, Omml_Models_EGRubyContent::__lml_validate_field_11, Omml_Models_EGRubyContent::__lml_validate_field_12, Omml_Models_EGRubyContent::__lml_validate_field_13, Omml_Models_EGRubyContent::__lml_validate_field_14, Omml_Models_EGRubyContent::__lml_validate_field_15, Omml_Models_EGRubyContent::__lml_validate_field_16, Omml_Models_EGRubyContent::__lml_validate_field_17, Omml_Models_EGRubyContent::__lml_validate_field_18, Omml_Models_EGRubyContent::__lml_validate_field_19, Omml_Models_EGRubyContent::__lml_validate_field_20, Omml_Models_EGRubyContent::__lml_validate_field_21, Omml_Models_EGRubyContent::__lml_validate_field_22, Omml_Models_EGRubyContent::__lml_validate_field_23, Omml_Models_EGRubyContent::__lml_validate_field_24, Omml_Models_EGRubyContent::__lml_validate_field_25];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.r {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRubyContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRubyContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -13496,8 +13597,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGRunInnerContent, bool)->Result<(),ValidationError>] = &[Omml_Models_EGRunInnerContent::__lml_validate_field_0];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGRunInnerContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRunInnerContent::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.t {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRunInnerContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRunInnerContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -13594,8 +13696,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGRunLevelElts, bool)->Result<(),ValidationError>] = &[Omml_Models_EGRunLevelElts::__lml_validate_field_0, Omml_Models_EGRunLevelElts::__lml_validate_field_1, Omml_Models_EGRunLevelElts::__lml_validate_field_2, Omml_Models_EGRunLevelElts::__lml_validate_field_3, Omml_Models_EGRunLevelElts::__lml_validate_field_4, Omml_Models_EGRunLevelElts::__lml_validate_field_5, Omml_Models_EGRunLevelElts::__lml_validate_field_6, Omml_Models_EGRunLevelElts::__lml_validate_field_7, Omml_Models_EGRunLevelElts::__lml_validate_field_8, Omml_Models_EGRunLevelElts::__lml_validate_field_9, Omml_Models_EGRunLevelElts::__lml_validate_field_10, Omml_Models_EGRunLevelElts::__lml_validate_field_11, Omml_Models_EGRunLevelElts::__lml_validate_field_12, Omml_Models_EGRunLevelElts::__lml_validate_field_13, Omml_Models_EGRunLevelElts::__lml_validate_field_14, Omml_Models_EGRunLevelElts::__lml_validate_field_15, Omml_Models_EGRunLevelElts::__lml_validate_field_16, Omml_Models_EGRunLevelElts::__lml_validate_field_17, Omml_Models_EGRunLevelElts::__lml_validate_field_18, Omml_Models_EGRunLevelElts::__lml_validate_field_19, Omml_Models_EGRunLevelElts::__lml_validate_field_20, Omml_Models_EGRunLevelElts::__lml_validate_field_21, Omml_Models_EGRunLevelElts::__lml_validate_field_22, Omml_Models_EGRunLevelElts::__lml_validate_field_23, Omml_Models_EGRunLevelElts::__lml_validate_field_24];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGRunLevelElts, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRunLevelElts::__lml_validate_field_0, Omml_Models_EGRunLevelElts::__lml_validate_field_1, Omml_Models_EGRunLevelElts::__lml_validate_field_2, Omml_Models_EGRunLevelElts::__lml_validate_field_3, Omml_Models_EGRunLevelElts::__lml_validate_field_4, Omml_Models_EGRunLevelElts::__lml_validate_field_5, Omml_Models_EGRunLevelElts::__lml_validate_field_6, Omml_Models_EGRunLevelElts::__lml_validate_field_7, Omml_Models_EGRunLevelElts::__lml_validate_field_8, Omml_Models_EGRunLevelElts::__lml_validate_field_9, Omml_Models_EGRunLevelElts::__lml_validate_field_10, Omml_Models_EGRunLevelElts::__lml_validate_field_11, Omml_Models_EGRunLevelElts::__lml_validate_field_12, Omml_Models_EGRunLevelElts::__lml_validate_field_13, Omml_Models_EGRunLevelElts::__lml_validate_field_14, Omml_Models_EGRunLevelElts::__lml_validate_field_15, Omml_Models_EGRunLevelElts::__lml_validate_field_16, Omml_Models_EGRunLevelElts::__lml_validate_field_17, Omml_Models_EGRunLevelElts::__lml_validate_field_18, Omml_Models_EGRunLevelElts::__lml_validate_field_19, Omml_Models_EGRunLevelElts::__lml_validate_field_20, Omml_Models_EGRunLevelElts::__lml_validate_field_21, Omml_Models_EGRunLevelElts::__lml_validate_field_22, Omml_Models_EGRunLevelElts::__lml_validate_field_23, Omml_Models_EGRunLevelElts::__lml_validate_field_24];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.proof_err {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.perm_start {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.perm_end {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.ins {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.del {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.move_from {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_to {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -13806,8 +13909,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGWordRunInnerContent, bool)->Result<(),ValidationError>] = &[Omml_Models_EGWordRunInnerContent::__lml_validate_field_0, Omml_Models_EGWordRunInnerContent::__lml_validate_field_1, Omml_Models_EGWordRunInnerContent::__lml_validate_field_2, Omml_Models_EGWordRunInnerContent::__lml_validate_field_3, Omml_Models_EGWordRunInnerContent::__lml_validate_field_4, Omml_Models_EGWordRunInnerContent::__lml_validate_field_5, Omml_Models_EGWordRunInnerContent::__lml_validate_field_6, Omml_Models_EGWordRunInnerContent::__lml_validate_field_7, Omml_Models_EGWordRunInnerContent::__lml_validate_field_8, Omml_Models_EGWordRunInnerContent::__lml_validate_field_9, Omml_Models_EGWordRunInnerContent::__lml_validate_field_10, Omml_Models_EGWordRunInnerContent::__lml_validate_field_11, Omml_Models_EGWordRunInnerContent::__lml_validate_field_12, Omml_Models_EGWordRunInnerContent::__lml_validate_field_13, Omml_Models_EGWordRunInnerContent::__lml_validate_field_14, Omml_Models_EGWordRunInnerContent::__lml_validate_field_15, Omml_Models_EGWordRunInnerContent::__lml_validate_field_16, Omml_Models_EGWordRunInnerContent::__lml_validate_field_17, Omml_Models_EGWordRunInnerContent::__lml_validate_field_18, Omml_Models_EGWordRunInnerContent::__lml_validate_field_19, Omml_Models_EGWordRunInnerContent::__lml_validate_field_20, Omml_Models_EGWordRunInnerContent::__lml_validate_field_21, Omml_Models_EGWordRunInnerContent::__lml_validate_field_22, Omml_Models_EGWordRunInnerContent::__lml_validate_field_23, Omml_Models_EGWordRunInnerContent::__lml_validate_field_24, Omml_Models_EGWordRunInnerContent::__lml_validate_field_25, Omml_Models_EGWordRunInnerContent::__lml_validate_field_26, Omml_Models_EGWordRunInnerContent::__lml_validate_field_27, Omml_Models_EGWordRunInnerContent::__lml_validate_field_28, Omml_Models_EGWordRunInnerContent::__lml_validate_field_29, Omml_Models_EGWordRunInnerContent::__lml_validate_field_30];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGWordRunInnerContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGWordRunInnerContent::__lml_validate_field_0, Omml_Models_EGWordRunInnerContent::__lml_validate_field_1, Omml_Models_EGWordRunInnerContent::__lml_validate_field_2, Omml_Models_EGWordRunInnerContent::__lml_validate_field_3, Omml_Models_EGWordRunInnerContent::__lml_validate_field_4, Omml_Models_EGWordRunInnerContent::__lml_validate_field_5, Omml_Models_EGWordRunInnerContent::__lml_validate_field_6, Omml_Models_EGWordRunInnerContent::__lml_validate_field_7, Omml_Models_EGWordRunInnerContent::__lml_validate_field_8, Omml_Models_EGWordRunInnerContent::__lml_validate_field_9, Omml_Models_EGWordRunInnerContent::__lml_validate_field_10, Omml_Models_EGWordRunInnerContent::__lml_validate_field_11, Omml_Models_EGWordRunInnerContent::__lml_validate_field_12, Omml_Models_EGWordRunInnerContent::__lml_validate_field_13, Omml_Models_EGWordRunInnerContent::__lml_validate_field_14, Omml_Models_EGWordRunInnerContent::__lml_validate_field_15, Omml_Models_EGWordRunInnerContent::__lml_validate_field_16, Omml_Models_EGWordRunInnerContent::__lml_validate_field_17, Omml_Models_EGWordRunInnerContent::__lml_validate_field_18, Omml_Models_EGWordRunInnerContent::__lml_validate_field_19, Omml_Models_EGWordRunInnerContent::__lml_validate_field_20, Omml_Models_EGWordRunInnerContent::__lml_validate_field_21, Omml_Models_EGWordRunInnerContent::__lml_validate_field_22, Omml_Models_EGWordRunInnerContent::__lml_validate_field_23, Omml_Models_EGWordRunInnerContent::__lml_validate_field_24, Omml_Models_EGWordRunInnerContent::__lml_validate_field_25, Omml_Models_EGWordRunInnerContent::__lml_validate_field_26, Omml_Models_EGWordRunInnerContent::__lml_validate_field_27, Omml_Models_EGWordRunInnerContent::__lml_validate_field_28, Omml_Models_EGWordRunInnerContent::__lml_validate_field_29, Omml_Models_EGWordRunInnerContent::__lml_validate_field_30];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.br {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.del_text {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.instr_text {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.del_instr_text {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.no_break_hyphen {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.soft_hyphen {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.day_short {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.month_short {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.year_short {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.day_long {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.month_long {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.year_long {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.annotation_ref {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.footnote_ref {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.endnote_ref {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.separator {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.continuation_separator {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.sym {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.pg_num {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.cr {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.tab {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.object {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.pict {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.fld_char {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.ruby {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.footnote_reference {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.endnote_reference {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.comment_reference {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.drawing {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.ptab {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.last_rendered_page_break {let empty=v.is_empty();if !empty {count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGWordRunInnerContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGWordRunInnerContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -13964,8 +14068,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_EGWrapType, bool)->Result<(),ValidationError>] = &[Omml_Models_EGWrapType::__lml_validate_field_0, Omml_Models_EGWrapType::__lml_validate_field_1, Omml_Models_EGWrapType::__lml_validate_field_2, Omml_Models_EGWrapType::__lml_validate_field_3, Omml_Models_EGWrapType::__lml_validate_field_4];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGWrapType, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGWrapType::__lml_validate_field_0, Omml_Models_EGWrapType::__lml_validate_field_1, Omml_Models_EGWrapType::__lml_validate_field_2, Omml_Models_EGWrapType::__lml_validate_field_3, Omml_Models_EGWrapType::__lml_validate_field_4];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.wrap_none {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_square {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_tight {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_through {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_top_and_bottom {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_lower_bound"));} }
 Ok(()) }
 #[inline(never)]
@@ -14141,8 +14246,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_OMath, bool)->Result<(),ValidationError>] = &[Omml_Models_OMath::__lml_validate_field_0, Omml_Models_OMath::__lml_validate_field_1, Omml_Models_OMath::__lml_validate_field_2, Omml_Models_OMath::__lml_validate_field_3, Omml_Models_OMath::__lml_validate_field_4, Omml_Models_OMath::__lml_validate_field_5, Omml_Models_OMath::__lml_validate_field_6, Omml_Models_OMath::__lml_validate_field_7, Omml_Models_OMath::__lml_validate_field_8, Omml_Models_OMath::__lml_validate_field_9, Omml_Models_OMath::__lml_validate_field_10, Omml_Models_OMath::__lml_validate_field_11, Omml_Models_OMath::__lml_validate_field_12, Omml_Models_OMath::__lml_validate_field_13, Omml_Models_OMath::__lml_validate_field_14, Omml_Models_OMath::__lml_validate_field_15, Omml_Models_OMath::__lml_validate_field_16, Omml_Models_OMath::__lml_validate_field_17, Omml_Models_OMath::__lml_validate_field_18, Omml_Models_OMath::__lml_validate_field_19, Omml_Models_OMath::__lml_validate_field_20, Omml_Models_OMath::__lml_validate_field_21, Omml_Models_OMath::__lml_validate_field_22, Omml_Models_OMath::__lml_validate_field_23, Omml_Models_OMath::__lml_validate_field_24, Omml_Models_OMath::__lml_validate_field_25, Omml_Models_OMath::__lml_validate_field_26, Omml_Models_OMath::__lml_validate_field_27, Omml_Models_OMath::__lml_validate_field_28, Omml_Models_OMath::__lml_validate_field_29, Omml_Models_OMath::__lml_validate_field_30, Omml_Models_OMath::__lml_validate_field_31, Omml_Models_OMath::__lml_validate_field_32, Omml_Models_OMath::__lml_validate_field_33, Omml_Models_OMath::__lml_validate_field_34, Omml_Models_OMath::__lml_validate_field_35, Omml_Models_OMath::__lml_validate_field_36, Omml_Models_OMath::__lml_validate_field_37, Omml_Models_OMath::__lml_validate_field_38, Omml_Models_OMath::__lml_validate_field_39, Omml_Models_OMath::__lml_validate_field_40, Omml_Models_OMath::__lml_validate_field_41, Omml_Models_OMath::__lml_validate_field_42, Omml_Models_OMath::__lml_validate_field_43, Omml_Models_OMath::__lml_validate_field_44];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_OMath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_OMath::__lml_validate_field_0, Omml_Models_OMath::__lml_validate_field_1, Omml_Models_OMath::__lml_validate_field_2, Omml_Models_OMath::__lml_validate_field_3, Omml_Models_OMath::__lml_validate_field_4, Omml_Models_OMath::__lml_validate_field_5, Omml_Models_OMath::__lml_validate_field_6, Omml_Models_OMath::__lml_validate_field_7, Omml_Models_OMath::__lml_validate_field_8, Omml_Models_OMath::__lml_validate_field_9, Omml_Models_OMath::__lml_validate_field_10, Omml_Models_OMath::__lml_validate_field_11, Omml_Models_OMath::__lml_validate_field_12, Omml_Models_OMath::__lml_validate_field_13, Omml_Models_OMath::__lml_validate_field_14, Omml_Models_OMath::__lml_validate_field_15, Omml_Models_OMath::__lml_validate_field_16, Omml_Models_OMath::__lml_validate_field_17, Omml_Models_OMath::__lml_validate_field_18, Omml_Models_OMath::__lml_validate_field_19, Omml_Models_OMath::__lml_validate_field_20, Omml_Models_OMath::__lml_validate_field_21, Omml_Models_OMath::__lml_validate_field_22, Omml_Models_OMath::__lml_validate_field_23, Omml_Models_OMath::__lml_validate_field_24, Omml_Models_OMath::__lml_validate_field_25, Omml_Models_OMath::__lml_validate_field_26, Omml_Models_OMath::__lml_validate_field_27, Omml_Models_OMath::__lml_validate_field_28, Omml_Models_OMath::__lml_validate_field_29, Omml_Models_OMath::__lml_validate_field_30, Omml_Models_OMath::__lml_validate_field_31, Omml_Models_OMath::__lml_validate_field_32, Omml_Models_OMath::__lml_validate_field_33, Omml_Models_OMath::__lml_validate_field_34, Omml_Models_OMath::__lml_validate_field_35, Omml_Models_OMath::__lml_validate_field_36, Omml_Models_OMath::__lml_validate_field_37, Omml_Models_OMath::__lml_validate_field_38, Omml_Models_OMath::__lml_validate_field_39, Omml_Models_OMath::__lml_validate_field_40, Omml_Models_OMath::__lml_validate_field_41, Omml_Models_OMath::__lml_validate_field_42, Omml_Models_OMath::__lml_validate_field_43, Omml_Models_OMath::__lml_validate_field_44];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::OMath@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "acc" => match &self.acc { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -14404,8 +14510,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-const FIELDS: &[fn(&Omml_Models_OMathPara, bool)->Result<(),ValidationError>] = &[Omml_Models_OMathPara::__lml_validate_field_0, Omml_Models_OMathPara::__lml_validate_field_1, Omml_Models_OMathPara::__lml_validate_field_2];
-for field in FIELDS { field(self, choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_OMathPara, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_OMathPara::__lml_validate_field_0, Omml_Models_OMathPara::__lml_validate_field_1, Omml_Models_OMathPara::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::OMathPara@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "o_math_para_pr" => match &self.o_math_para_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
