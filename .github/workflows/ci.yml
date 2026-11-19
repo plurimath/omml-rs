@@ -82,7 +82,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: plurimath/plurimath-testsuite
-          ref: 337262eda0483ceaa43a02cc52362c5b721e5eb3
+          ref: 9767c37a8d7bb21a0694780ecfcbc4f1fbd9eb39
           path: .corpus
           persist-credentials: false
       - name: Install Python for the corpus extractor
@@ -97,7 +97,7 @@ jobs:
         env:
           OMML_CORPUS_CASES: target/corpus.json
           OMML_CORPUS_REPORT: target/corpus-report.json
-        run: cargo +${{ matrix.rust }} test --locked --test corpus_replay -- --ignored --nocapture
+        run: cargo +${{ matrix.rust }} test --locked --features model-serde --test corpus_replay -- --ignored --nocapture
       - name: Upload the replay report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

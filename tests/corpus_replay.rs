@@ -7,14 +7,19 @@
 //! row's expected `to_xml` output byte for byte. A row whose expected outcome
 //! is a refusal must be refused. A failing output is classed as
 //! `output-bytes` (same element tree, different bytes) or `output-tree`.
-//! The expected Ruby model wire is not compared here: it names Ruby classes
-//! and Lutaml attributes, which the generated Rust models do not expose.
+//! The parsed model must also equal the row's expected Ruby model wire
+//! (`model_wire`), or the row fails as `model-wire`. That needs the
+//! `model-serde` feature.
 //!
 //! The ledger is append-only: a row whose id has an `-r2` sibling is
 //! superseded by it and only the sibling runs, as in the Ruby gem's replay.
+mod model_wire;
+
 use lutaml_rs::xml::moxml_binding::moxml::document::{ContentRow, Document, ElementRow};
+use model_wire::{first_difference, Graph};
+use omml::document::{OmmlDocument, OmmlRoot};
 use serde_json::{json, Value};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 fn tree(rows: &[ElementRow], ordinal: usize) -> Value {
     let element = &rows[ordinal];
@@ -69,11 +74,25 @@ fn xml_tree(xml: &str) -> Option<Value> {
     Some(tree(&doc.element_rows(), 0))
 }
 
-/// What `Omml.parse(input).to_xml` does.
-fn roundtrip(input: &str) -> Result<String, String> {
-    omml::document::parse(input.as_bytes())
-        .and_then(|doc| doc.to_xml())
-        .map_err(|e| e.to_string())
+/// What `Omml.parse(input)` and its `to_xml` do.
+fn roundtrip(input: &str) -> Result<(String, OmmlDocument), String> {
+    let doc = omml::document::parse(input.as_bytes()).map_err(|e| e.to_string())?;
+    let xml = doc.to_xml().map_err(|e| e.to_string())?;
+    Ok((xml, doc))
+}
+
+/// The Ruby model wire of a parsed document.
+fn model_wire(graph: &Graph, doc: &OmmlDocument) -> Value {
+    match &doc.root {
+        OmmlRoot::OMath(model) => graph.wire(
+            "Omml::Models::OMath@omml",
+            &serde_json::to_value(&**model).expect("model-serde JSON"),
+        ),
+        OmmlRoot::OMathPara(model) => graph.wire(
+            "Omml::Models::OMathPara@omml",
+            &serde_json::to_value(&**model).expect("model-serde JSON"),
+        ),
+    }
 }
 
 /// Rows whose input is not well-formed XML. The Ruby gem's parser recovers
@@ -101,7 +120,11 @@ const KNOWN_REFUSALS: &[(&str, &str)] = &[
 ];
 
 /// `None` when the row passes, otherwise `(kind, detail)`.
-fn failure(row: &Value) -> Option<(&'static str, String)> {
+fn failure(
+    row: &Value,
+    graph: &Graph,
+    profiles: &mut BTreeMap<&'static str, usize>,
+) -> Option<(&'static str, String)> {
     let input = row["input"]["str"].as_str().unwrap();
     assert!(
         row["options"].as_object().is_none_or(|o| o.is_empty()),
@@ -111,16 +134,24 @@ fn failure(row: &Value) -> Option<(&'static str, String)> {
     let result = roundtrip(input);
     let id = row["id"].as_str().unwrap();
     if KNOWN_REFUSALS.iter().any(|(known, _)| *known == id) {
-        return result.ok().map(|xml| ("known-refusal-accepted", xml));
+        return result.ok().map(|(xml, _)| ("known-refusal-accepted", xml));
     }
     if row["expected"].get("refusal").is_some() {
-        return result.ok().map(|xml| ("accepted", xml));
+        return result.ok().map(|(xml, _)| ("accepted", xml));
     }
     let expected = row["expected"]["output"]["str"].as_str().unwrap();
     match result {
         Err(error) => Some(("refused", error)),
-        Ok(actual) if actual == expected => None,
-        Ok(actual) => {
+        Ok((actual, doc)) if actual == expected => {
+            let mut used = BTreeSet::new();
+            let normalized = graph.normalize(&row["expected"]["model"], &mut used);
+            for name in used {
+                *profiles.entry(name).or_default() += 1;
+            }
+            first_difference(&model_wire(graph, &doc), &normalized, "")
+                .map(|difference| ("model-wire", difference))
+        }
+        Ok((actual, _)) => {
             let same_tree = xml_tree(&actual).is_some() && xml_tree(&actual) == xml_tree(expected);
             let at = actual
                 .bytes()
@@ -154,6 +185,11 @@ fn pinned_generation_replay() {
         .filter(|id| id.contains("-r2"))
         .map(|id| id.replacen("-r2", "", 1))
         .collect();
+    let graph = Graph::load(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/model/runtime-graph-v1.json"
+    ));
+    let mut profiles = BTreeMap::<&'static str, usize>::new();
     let mut outcomes = Vec::new();
     let mut failures = 0usize;
     for row in rows {
@@ -161,7 +197,7 @@ fn pinned_generation_replay() {
         if superseded.contains(row["id"].as_str().unwrap()) {
             continue;
         }
-        let failure = failure(row);
+        let failure = failure(row, &graph, &mut profiles);
         failures += usize::from(failure.is_some());
         let (kind, detail) = match failure {
             Some((kind, detail)) => (
@@ -196,6 +232,7 @@ fn pinned_generation_replay() {
         "failed": failures,
         "known_refusals": KNOWN_REFUSALS.iter().map(|(id, reason)| json!({"id": id, "reason": reason})).collect::<Vec<_>>(),
         "kinds": kinds,
+        "model_wire_profiles": profiles,
         "outcomes": outcomes,
     });
     if let Ok(out) = std::env::var("OMML_CORPUS_REPORT") {
@@ -206,6 +243,7 @@ fn pinned_generation_replay() {
         outcomes.len(),
         superseded.len()
     );
+    println!("model wire normalizations (rows): {profiles:?}");
     let shown: Vec<_> = outcomes
         .iter()
         .filter(|o| !o["kind"].is_null())
