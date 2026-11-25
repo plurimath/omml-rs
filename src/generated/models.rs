@@ -179,16 +179,26 @@ pub enum ContentToken {
  Element { attribute: String, index: u64 },
  Text { #[serde(flatten)] source: TextSource },
  Cdata { #[serde(flatten)] source: TextSource },
+ Comment { literal: String },
+ ProcessingInstruction { target: String, data: String },
+ Attribute { attribute: String, index: u64 },
 }
 // serde cannot combine deny_unknown_fields with flatten, so tokens are read
 // through one closed wire shape and then checked against the token kind.
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-struct ContentTokenWire { kind: String, attribute: Option<String>, index: Option<u64>, literal: Option<String> }
+struct ContentTokenWire { kind: String, attribute: Option<String>, index: Option<u64>, literal: Option<String>, target: Option<String>, data: Option<String> }
 impl<'de> Deserialize<'de> for ContentToken {
  fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
   let w = ContentTokenWire::deserialize(d)?;
   let bad = |m: &str| serde::de::Error::custom(m);
+  if w.kind == "processing_instruction" {
+   return match (w.attribute, w.index, w.literal, w.target, w.data) {
+    (None, None, None, Some(target), Some(data)) => Ok(Self::ProcessingInstruction { target, data }),
+    _ => Err(bad("processing_instruction token needs target and data only")),
+   };
+  }
+  if w.target.is_some() || w.data.is_some() { return Err(bad("only processing_instruction tokens carry target and data")); }
   let source = match (w.attribute, w.index, w.literal) {
    (Some(attribute), Some(index), None) => TextSource::Member { attribute, index },
    (None, None, Some(literal)) => TextSource::Literal { literal },
@@ -199,13 +209,17 @@ impl<'de> Deserialize<'de> for ContentToken {
    ("element", _) => Err(bad("element token needs attribute and index only")),
    ("text", source) => Ok(Self::Text { source }),
    ("cdata", source) => Ok(Self::Cdata { source }),
+   ("comment", TextSource::Literal { literal }) => Ok(Self::Comment { literal }),
+   ("comment", _) => Err(bad("comment token needs literal only")),
+   ("attribute", TextSource::Member { attribute, index: 0 }) => Ok(Self::Attribute { attribute, index: 0 }),
+   ("attribute", _) => Err(bad("attribute token needs attribute and index 0 only")),
    _ => Err(bad("unknown content token kind")),
   }
  }
 }
 impl ContentToken {
  pub fn reference(&self) -> Option<(&str,u64)> { match self {
- Self::Element { attribute,index } | Self::Text { source: TextSource::Member { attribute,index } } | Self::Cdata { source: TextSource::Member { attribute,index } } => Some((attribute,*index)),
+ Self::Element { attribute,index } | Self::Attribute { attribute,index } | Self::Text { source: TextSource::Member { attribute,index } } | Self::Cdata { source: TextSource::Member { attribute,index } } => Some((attribute,*index)),
  _ => None,
  } }
 }
@@ -229,8 +243,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTAcc, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTAcc::__lml_validate_field_0, Omml_Models_CTAcc::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.acc_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAcc@omml", "acc_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.acc_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -254,8 +277,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTAccPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTAccPr::__lml_validate_field_0, Omml_Models_CTAccPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAccPr@omml", "chr", "invalid_document")); } }
 if let Presence::Value(values)=&self.chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAccPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -346,26 +378,68 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTAnchor, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTAnchor::__lml_validate_field_0, Omml_Models_CTAnchor::__lml_validate_field_1, Omml_Models_CTAnchor::__lml_validate_field_2, Omml_Models_CTAnchor::__lml_validate_field_3, Omml_Models_CTAnchor::__lml_validate_field_4, Omml_Models_CTAnchor::__lml_validate_field_5, Omml_Models_CTAnchor::__lml_validate_field_6, Omml_Models_CTAnchor::__lml_validate_field_7, Omml_Models_CTAnchor::__lml_validate_field_19, Omml_Models_CTAnchor::__lml_validate_field_20, Omml_Models_CTAnchor::__lml_validate_field_21, Omml_Models_CTAnchor::__lml_validate_field_22, Omml_Models_CTAnchor::__lml_validate_field_23];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.simple_position { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.position_h { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.position_v { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.extent { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.effect_extent { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "effect_extent", "invalid_document")); } }
 if let Presence::Value(values)=&self.effect_extent { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.doc_pr { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "doc_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.doc_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.c_nv_graphic_frame_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "c_nv_graphic_frame_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.c_nv_graphic_frame_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.graphic { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "graphic", "invalid_document")); } }
 if let Presence::Value(values)=&self.graphic { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_none { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "wrap_none", "invalid_document")); } }
 if let Presence::Value(values)=&self.wrap_none { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_square { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "wrap_square", "invalid_document")); } }
 if let Presence::Value(values)=&self.wrap_square { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_tight { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "wrap_tight", "invalid_document")); } }
 if let Presence::Value(values)=&self.wrap_tight { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_through { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "wrap_through", "invalid_document")); } }
 if let Presence::Value(values)=&self.wrap_through { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_top_and_bottom { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTAnchor@omml", "wrap_top_and_bottom", "invalid_document")); } }
 if let Presence::Value(values)=&self.wrap_top_and_bottom { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -392,7 +466,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -415,8 +489,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTBar, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBar::__lml_validate_field_0, Omml_Models_CTBar::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bar_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBar@omml", "bar_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.bar_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -440,8 +523,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTBarPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBarPr::__lml_validate_field_0, Omml_Models_CTBarPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.pos { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBarPr@omml", "pos", "invalid_document")); } }
 if let Presence::Value(values)=&self.pos { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBarPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -491,7 +583,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1252,7 +1344,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1278,14 +1370,23 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.border_box_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBox@omml", "border_box_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.border_box_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTBorderBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBorderBox::__lml_validate_field_0, Omml_Models_CTBorderBox::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTBorderBox@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "border_box_pr" => match &self.border_box_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
 "e" => match &self.e { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::CTBorderBox@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTBorderBox@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.border_box_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBox@omml", "border_box_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.border_box_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1329,22 +1430,52 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTBorderBoxPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBorderBoxPr::__lml_validate_field_0, Omml_Models_CTBorderBoxPr::__lml_validate_field_1, Omml_Models_CTBorderBoxPr::__lml_validate_field_2, Omml_Models_CTBorderBoxPr::__lml_validate_field_3, Omml_Models_CTBorderBoxPr::__lml_validate_field_4, Omml_Models_CTBorderBoxPr::__lml_validate_field_5, Omml_Models_CTBorderBoxPr::__lml_validate_field_6, Omml_Models_CTBorderBoxPr::__lml_validate_field_7, Omml_Models_CTBorderBoxPr::__lml_validate_field_8];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hide_top { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "hide_top", "invalid_document")); } }
 if let Presence::Value(values)=&self.hide_top { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hide_bot { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "hide_bot", "invalid_document")); } }
 if let Presence::Value(values)=&self.hide_bot { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hide_left { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "hide_left", "invalid_document")); } }
 if let Presence::Value(values)=&self.hide_left { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hide_right { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "hide_right", "invalid_document")); } }
 if let Presence::Value(values)=&self.hide_right { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.strike_h { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "strike_h", "invalid_document")); } }
 if let Presence::Value(values)=&self.strike_h { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.strike_v { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "strike_v", "invalid_document")); } }
 if let Presence::Value(values)=&self.strike_v { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.strike_bltr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "strike_bltr", "invalid_document")); } }
 if let Presence::Value(values)=&self.strike_bltr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.strike_tlbr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "strike_tlbr", "invalid_document")); } }
 if let Presence::Value(values)=&self.strike_tlbr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBorderBoxPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -1369,8 +1500,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBox::__lml_validate_field_0, Omml_Models_CTBox::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.box_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBox@omml", "box_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.box_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -1406,16 +1546,37 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTBoxPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTBoxPr::__lml_validate_field_0, Omml_Models_CTBoxPr::__lml_validate_field_1, Omml_Models_CTBoxPr::__lml_validate_field_2, Omml_Models_CTBoxPr::__lml_validate_field_3, Omml_Models_CTBoxPr::__lml_validate_field_4, Omml_Models_CTBoxPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.op_emu { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBoxPr@omml", "op_emu", "invalid_document")); } }
 if let Presence::Value(values)=&self.op_emu { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.no_break { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBoxPr@omml", "no_break", "invalid_document")); } }
 if let Presence::Value(values)=&self.no_break { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.diff { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBoxPr@omml", "diff", "invalid_document")); } }
 if let Presence::Value(values)=&self.diff { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.brk { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBoxPr@omml", "brk", "invalid_document")); } }
 if let Presence::Value(values)=&self.brk { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.aln { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBoxPr@omml", "aln", "invalid_document")); } }
 if let Presence::Value(values)=&self.aln { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTBoxPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -1482,7 +1643,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1521,7 +1682,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1560,7 +1721,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1620,7 +1781,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1639,7 +1800,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -1743,7 +1904,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1768,7 +1929,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -1794,8 +1955,20 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTCtrlPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTCtrlPr::__lml_validate_field_0, Omml_Models_CTCtrlPr::__lml_validate_field_1, Omml_Models_CTCtrlPr::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCtrlPr@omml", "r_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -1820,8 +1993,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTCustomXmlPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTCustomXmlPr::__lml_validate_field_0, Omml_Models_CTCustomXmlPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.placeholder { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCustomXmlPr@omml", "placeholder", "invalid_document")); } }
 if let Presence::Value(values)=&self.placeholder { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.attr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
@@ -1944,44 +2126,146 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTCustomXmlRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTCustomXmlRun::__lml_validate_field_0, Omml_Models_CTCustomXmlRun::__lml_validate_field_3, Omml_Models_CTCustomXmlRun::__lml_validate_field_4, Omml_Models_CTCustomXmlRun::__lml_validate_field_5, Omml_Models_CTCustomXmlRun::__lml_validate_field_6, Omml_Models_CTCustomXmlRun::__lml_validate_field_7, Omml_Models_CTCustomXmlRun::__lml_validate_field_8, Omml_Models_CTCustomXmlRun::__lml_validate_field_9, Omml_Models_CTCustomXmlRun::__lml_validate_field_10, Omml_Models_CTCustomXmlRun::__lml_validate_field_11, Omml_Models_CTCustomXmlRun::__lml_validate_field_12, Omml_Models_CTCustomXmlRun::__lml_validate_field_13, Omml_Models_CTCustomXmlRun::__lml_validate_field_14, Omml_Models_CTCustomXmlRun::__lml_validate_field_15, Omml_Models_CTCustomXmlRun::__lml_validate_field_16, Omml_Models_CTCustomXmlRun::__lml_validate_field_17, Omml_Models_CTCustomXmlRun::__lml_validate_field_18, Omml_Models_CTCustomXmlRun::__lml_validate_field_19, Omml_Models_CTCustomXmlRun::__lml_validate_field_20, Omml_Models_CTCustomXmlRun::__lml_validate_field_21, Omml_Models_CTCustomXmlRun::__lml_validate_field_22, Omml_Models_CTCustomXmlRun::__lml_validate_field_23, Omml_Models_CTCustomXmlRun::__lml_validate_field_24, Omml_Models_CTCustomXmlRun::__lml_validate_field_25, Omml_Models_CTCustomXmlRun::__lml_validate_field_26, Omml_Models_CTCustomXmlRun::__lml_validate_field_27, Omml_Models_CTCustomXmlRun::__lml_validate_field_28, Omml_Models_CTCustomXmlRun::__lml_validate_field_29, Omml_Models_CTCustomXmlRun::__lml_validate_field_30, Omml_Models_CTCustomXmlRun::__lml_validate_field_31, Omml_Models_CTCustomXmlRun::__lml_validate_field_32, Omml_Models_CTCustomXmlRun::__lml_validate_field_33, Omml_Models_CTCustomXmlRun::__lml_validate_field_34];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCustomXmlRun@omml", "custom_xml_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.custom_xml_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.fld_simple { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hyperlink { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub_doc { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCustomXmlRun@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCustomXmlRun@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCustomXmlRun@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCustomXmlRun@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTCustomXmlRun@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -2005,8 +2289,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTD, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTD::__lml_validate_field_0, Omml_Models_CTD::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.d_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTD@omml", "d_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.d_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::CTD@omml", "e", "invalid_document")); } }
 if let Presence::Value(values)=&self.e { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -2049,20 +2342,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.beg_chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "beg_chr", "invalid_document")); } }
-if let Presence::Value(values)=&self.beg_chr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.sep_chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "sep_chr", "invalid_document")); } }
-if let Presence::Value(values)=&self.sep_chr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.end_chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "end_chr", "invalid_document")); } }
-if let Presence::Value(values)=&self.end_chr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.grow { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "grow", "invalid_document")); } }
-if let Presence::Value(values)=&self.grow { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.shp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "shp", "invalid_document")); } }
-if let Presence::Value(values)=&self.shp { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "ctrl_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.word_r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "word_r_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.word_r_pr { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_CTDPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTDPr::__lml_validate_field_0, Omml_Models_CTDPr::__lml_validate_field_1, Omml_Models_CTDPr::__lml_validate_field_2, Omml_Models_CTDPr::__lml_validate_field_3, Omml_Models_CTDPr::__lml_validate_field_4, Omml_Models_CTDPr::__lml_validate_field_5, Omml_Models_CTDPr::__lml_validate_field_6];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTDPr@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "beg_chr" => match &self.beg_chr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -2073,6 +2355,41 @@ if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collectio
 "ctrl_pr" => match &self.ctrl_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
 "word_r_pr" => match &self.word_r_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
 _ => return Err(invalid("Omml::Models::CTDPr@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTDPr@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.beg_chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "beg_chr", "invalid_document")); } }
+if let Presence::Value(values)=&self.beg_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.sep_chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "sep_chr", "invalid_document")); } }
+if let Presence::Value(values)=&self.sep_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.end_chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "end_chr", "invalid_document")); } }
+if let Presence::Value(values)=&self.end_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.grow { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "grow", "invalid_document")); } }
+if let Presence::Value(values)=&self.grow { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.shp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "shp", "invalid_document")); } }
+if let Presence::Value(values)=&self.shp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "ctrl_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.word_r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTDPr@omml", "word_r_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.word_r_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2097,7 +2414,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2116,7 +2433,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2139,9 +2456,18 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.anchor { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.inline { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_CTDrawing, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTDrawing::__lml_validate_field_0, Omml_Models_CTDrawing::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.anchor {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.inline {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTDrawing@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.anchor { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.inline { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -2285,7 +2611,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2313,7 +2639,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -2358,7 +2684,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2374,7 +2700,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2397,8 +2723,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTEqArr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTEqArr::__lml_validate_field_0, Omml_Models_CTEqArr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.eq_arr_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTEqArr@omml", "eq_arr_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.eq_arr_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::CTEqArr@omml", "e", "invalid_document")); } }
 if let Presence::Value(values)=&self.e { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -2435,16 +2770,37 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTEqArrPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTEqArrPr::__lml_validate_field_0, Omml_Models_CTEqArrPr::__lml_validate_field_1, Omml_Models_CTEqArrPr::__lml_validate_field_2, Omml_Models_CTEqArrPr::__lml_validate_field_3, Omml_Models_CTEqArrPr::__lml_validate_field_4, Omml_Models_CTEqArrPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.base_jc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTEqArrPr@omml", "base_jc", "invalid_document")); } }
 if let Presence::Value(values)=&self.base_jc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.max_dist { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTEqArrPr@omml", "max_dist", "invalid_document")); } }
 if let Presence::Value(values)=&self.max_dist { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.obj_dist { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTEqArrPr@omml", "obj_dist", "invalid_document")); } }
 if let Presence::Value(values)=&self.obj_dist { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_sp_rule { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTEqArrPr@omml", "r_sp_rule", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_sp_rule { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_sp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTEqArrPr@omml", "r_sp", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_sp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTEqArrPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -2472,9 +2828,21 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTF, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTF::__lml_validate_field_0, Omml_Models_CTF::__lml_validate_field_1, Omml_Models_CTF::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.f_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTF@omml", "f_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.f_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.num { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.den { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -2504,13 +2872,28 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTFFCheckBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFCheckBox::__lml_validate_field_0, Omml_Models_CTFFCheckBox::__lml_validate_field_1, Omml_Models_CTFFCheckBox::__lml_validate_field_2, Omml_Models_CTFFCheckBox::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.size {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.size_auto {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTFFCheckBox@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTFFCheckBox@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.size { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.size_auto { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.default_ { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFCheckBox@omml", "default", "invalid_document")); } }
 if let Presence::Value(values)=&self.default_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.checked { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFCheckBox@omml", "checked", "invalid_document")); } }
 if let Presence::Value(values)=&self.checked { for v in values { v.validate_phase(choices)?; } }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.size {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.size_auto {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTFFCheckBox@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTFFCheckBox@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2536,10 +2919,22 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTFFDDList, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFDDList::__lml_validate_field_0, Omml_Models_CTFFDDList::__lml_validate_field_1, Omml_Models_CTFFDDList::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.result { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFDDList@omml", "result", "invalid_document")); } }
 if let Presence::Value(values)=&self.result { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.default_ { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFDDList@omml", "default", "invalid_document")); } }
 if let Presence::Value(values)=&self.default_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.list_entry { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
@@ -2587,17 +2982,50 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.name { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.enabled { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.calc_on_exit { v.validate_phase(choices)?; }
-if let Presence::Value(values)=&self.entry_macro { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.exit_macro { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.help_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.status_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.check_box { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.dd_list { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.text_input { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFFData, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFData::__lml_validate_field_0, Omml_Models_CTFFData::__lml_validate_field_1, Omml_Models_CTFFData::__lml_validate_field_2, Omml_Models_CTFFData::__lml_validate_field_3, Omml_Models_CTFFData::__lml_validate_field_4, Omml_Models_CTFFData::__lml_validate_field_5, Omml_Models_CTFFData::__lml_validate_field_6, Omml_Models_CTFFData::__lml_validate_field_7, Omml_Models_CTFFData::__lml_validate_field_8, Omml_Models_CTFFData::__lml_validate_field_9];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.name {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.enabled {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.calc_on_exit {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.entry_macro {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.exit_macro {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.help_text {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.status_text {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if (||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.check_box {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.dd_list {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.text_input {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTFFData@omml","","choice_upper_bound"));}Ok(true)})()? {count+=1;}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTFFData@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.name { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.enabled { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.calc_on_exit { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.entry_macro { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.exit_macro { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.help_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.status_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.check_box { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.dd_list { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.text_input { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -2636,7 +3064,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2655,7 +3083,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -2694,7 +3122,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2723,12 +3151,27 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTFFTextInput, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFFTextInput::__lml_validate_field_0, Omml_Models_CTFFTextInput::__lml_validate_field_1, Omml_Models_CTFFTextInput::__lml_validate_field_2, Omml_Models_CTFFTextInput::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.type_ { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFTextInput@omml", "type", "invalid_document")); } }
 if let Presence::Value(values)=&self.type_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.default_ { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFTextInput@omml", "default", "invalid_document")); } }
 if let Presence::Value(values)=&self.default_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.max_length { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFTextInput@omml", "max_length", "invalid_document")); } }
 if let Presence::Value(values)=&self.max_length { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.format { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFFTextInput@omml", "format", "invalid_document")); } }
 if let Presence::Value(values)=&self.format { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -2778,7 +3221,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2801,8 +3244,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTFPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFPr::__lml_validate_field_0, Omml_Models_CTFPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.type_ { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFPr@omml", "type", "invalid_document")); } }
 if let Presence::Value(values)=&self.type_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -2846,7 +3298,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -2868,7 +3320,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -2981,10 +3433,22 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.fld_data { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.ff_data { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.numbering_change { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_CTFldChar, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFldChar::__lml_validate_field_0, Omml_Models_CTFldChar::__lml_validate_field_1, Omml_Models_CTFldChar::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.fld_data {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.ff_data {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.numbering_change {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTFldChar@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.fld_data { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.ff_data { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.numbering_change { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3187,7 +3651,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3238,7 +3702,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3267,16 +3731,28 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.func_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFunc@omml", "func_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.func_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.f_name { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTFunc, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFunc::__lml_validate_field_0, Omml_Models_CTFunc::__lml_validate_field_1, Omml_Models_CTFunc::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTFunc@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "func_pr" => match &self.func_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
 "f_name" => match &self.f_name { Presence::Value(_)=>1, _=>0 },
 "e" => match &self.e { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::CTFunc@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTFunc@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.func_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFunc@omml", "func_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.func_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.f_name { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3296,6 +3772,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTFuncPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTFuncPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTFuncPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -3317,6 +3799,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTGraphicalObject, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGraphicalObject::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.graphic_data { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -3336,7 +3824,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3374,6 +3862,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTGraphicalObjectFrameLocking, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGraphicalObjectFrameLocking::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ext_lst { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTGraphicalObjectFrameLocking@omml", "ext_lst", "invalid_document")); } }
 if let Presence::Value(values)=&self.ext_lst { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -3398,8 +3892,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTGroupChr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGroupChr::__lml_validate_field_0, Omml_Models_CTGroupChr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.group_chr_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTGroupChr@omml", "group_chr_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.group_chr_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -3429,12 +3932,27 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTGroupChrPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTGroupChrPr::__lml_validate_field_0, Omml_Models_CTGroupChrPr::__lml_validate_field_1, Omml_Models_CTGroupChrPr::__lml_validate_field_2, Omml_Models_CTGroupChrPr::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTGroupChrPr@omml", "chr", "invalid_document")); } }
 if let Presence::Value(values)=&self.chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.pos { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTGroupChrPr@omml", "pos", "invalid_document")); } }
 if let Presence::Value(values)=&self.pos { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.vert_jc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTGroupChrPr@omml", "vert_jc", "invalid_document")); } }
 if let Presence::Value(values)=&self.vert_jc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTGroupChrPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -3517,7 +4035,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3536,7 +4054,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3696,42 +4214,141 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTHyperlink, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTHyperlink::__lml_validate_field_6, Omml_Models_CTHyperlink::__lml_validate_field_7, Omml_Models_CTHyperlink::__lml_validate_field_8, Omml_Models_CTHyperlink::__lml_validate_field_9, Omml_Models_CTHyperlink::__lml_validate_field_10, Omml_Models_CTHyperlink::__lml_validate_field_11, Omml_Models_CTHyperlink::__lml_validate_field_12, Omml_Models_CTHyperlink::__lml_validate_field_13, Omml_Models_CTHyperlink::__lml_validate_field_14, Omml_Models_CTHyperlink::__lml_validate_field_15, Omml_Models_CTHyperlink::__lml_validate_field_16, Omml_Models_CTHyperlink::__lml_validate_field_17, Omml_Models_CTHyperlink::__lml_validate_field_18, Omml_Models_CTHyperlink::__lml_validate_field_19, Omml_Models_CTHyperlink::__lml_validate_field_20, Omml_Models_CTHyperlink::__lml_validate_field_21, Omml_Models_CTHyperlink::__lml_validate_field_22, Omml_Models_CTHyperlink::__lml_validate_field_23, Omml_Models_CTHyperlink::__lml_validate_field_24, Omml_Models_CTHyperlink::__lml_validate_field_25, Omml_Models_CTHyperlink::__lml_validate_field_26, Omml_Models_CTHyperlink::__lml_validate_field_27, Omml_Models_CTHyperlink::__lml_validate_field_28, Omml_Models_CTHyperlink::__lml_validate_field_29, Omml_Models_CTHyperlink::__lml_validate_field_30, Omml_Models_CTHyperlink::__lml_validate_field_31, Omml_Models_CTHyperlink::__lml_validate_field_32, Omml_Models_CTHyperlink::__lml_validate_field_33, Omml_Models_CTHyperlink::__lml_validate_field_34, Omml_Models_CTHyperlink::__lml_validate_field_35, Omml_Models_CTHyperlink::__lml_validate_field_36, Omml_Models_CTHyperlink::__lml_validate_field_37];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.fld_simple { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hyperlink { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub_doc { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTHyperlink@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTHyperlink@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTHyperlink@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTHyperlink@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTHyperlink@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -3776,13 +4393,31 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTInline, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTInline::__lml_validate_field_0, Omml_Models_CTInline::__lml_validate_field_1, Omml_Models_CTInline::__lml_validate_field_2, Omml_Models_CTInline::__lml_validate_field_3, Omml_Models_CTInline::__lml_validate_field_4];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.extent { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.effect_extent { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTInline@omml", "effect_extent", "invalid_document")); } }
 if let Presence::Value(values)=&self.effect_extent { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.doc_pr { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTInline@omml", "doc_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.doc_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.c_nv_graphic_frame_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTInline@omml", "c_nv_graphic_frame_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.c_nv_graphic_frame_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.graphic { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTInline@omml", "graphic", "invalid_document")); } }
 if let Presence::Value(values)=&self.graphic { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -3803,7 +4438,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3822,7 +4457,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3841,7 +4476,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3866,7 +4501,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -3902,7 +4537,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3931,16 +4566,28 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.lim_low_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTLimLow@omml", "lim_low_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.lim_low_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.lim { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTLimLow, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimLow::__lml_validate_field_0, Omml_Models_CTLimLow::__lml_validate_field_1, Omml_Models_CTLimLow::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTLimLow@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "lim_low_pr" => match &self.lim_low_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
 "e" => match &self.e { Presence::Value(_)=>1, _=>0 },
 "lim" => match &self.lim { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::CTLimLow@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTLimLow@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.lim_low_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTLimLow@omml", "lim_low_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.lim_low_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.lim { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -3960,6 +4607,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTLimLowPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimLowPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTLimLowPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -3987,9 +4640,21 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTLimUpp, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimUpp::__lml_validate_field_0, Omml_Models_CTLimUpp::__lml_validate_field_1, Omml_Models_CTLimUpp::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lim_upp_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTLimUpp@omml", "lim_upp_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.lim_upp_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lim { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -4010,6 +4675,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTLimUppPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTLimUppPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTLimUppPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4053,7 +4724,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4076,8 +4747,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTM, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTM::__lml_validate_field_0, Omml_Models_CTM::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.m_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTM@omml", "m_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.m_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.mr { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::CTM@omml", "mr", "invalid_document")); } }
 if let Presence::Value(values)=&self.mr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4099,6 +4779,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTMC, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMC::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.mc_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMC@omml", "mc_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.mc_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4123,8 +4809,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTMCPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMCPr::__lml_validate_field_0, Omml_Models_CTMCPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.count { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMCPr@omml", "count", "invalid_document")); } }
 if let Presence::Value(values)=&self.count { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.mc_jc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMCPr@omml", "mc_jc", "invalid_document")); } }
 if let Presence::Value(values)=&self.mc_jc { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4146,6 +4841,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTMCS, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMCS::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.mc { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::CTMCS@omml", "mc", "invalid_document")); } }
 if let Presence::Value(values)=&self.mc { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4191,22 +4892,52 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTMPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMPr::__lml_validate_field_0, Omml_Models_CTMPr::__lml_validate_field_1, Omml_Models_CTMPr::__lml_validate_field_2, Omml_Models_CTMPr::__lml_validate_field_3, Omml_Models_CTMPr::__lml_validate_field_4, Omml_Models_CTMPr::__lml_validate_field_5, Omml_Models_CTMPr::__lml_validate_field_6, Omml_Models_CTMPr::__lml_validate_field_7, Omml_Models_CTMPr::__lml_validate_field_8];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.base_jc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "base_jc", "invalid_document")); } }
 if let Presence::Value(values)=&self.base_jc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.plc_hide { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "plc_hide", "invalid_document")); } }
 if let Presence::Value(values)=&self.plc_hide { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_sp_rule { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "r_sp_rule", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_sp_rule { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.c_gp_rule { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "c_gp_rule", "invalid_document")); } }
 if let Presence::Value(values)=&self.c_gp_rule { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_sp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "r_sp", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_sp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.c_sp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "c_sp", "invalid_document")); } }
 if let Presence::Value(values)=&self.c_sp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.c_gp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "c_gp", "invalid_document")); } }
 if let Presence::Value(values)=&self.c_gp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.mcs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "mcs", "invalid_document")); } }
 if let Presence::Value(values)=&self.mcs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4228,6 +4959,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTMR, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMR::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::CTMR@omml", "e", "invalid_document")); } }
 if let Presence::Value(values)=&self.e { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4248,7 +4985,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4267,7 +5004,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4286,7 +5023,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -4325,7 +5062,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4390,37 +5127,88 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTMathPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTMathPr::__lml_validate_field_0, Omml_Models_CTMathPr::__lml_validate_field_1, Omml_Models_CTMathPr::__lml_validate_field_2, Omml_Models_CTMathPr::__lml_validate_field_3, Omml_Models_CTMathPr::__lml_validate_field_4, Omml_Models_CTMathPr::__lml_validate_field_5, Omml_Models_CTMathPr::__lml_validate_field_6, Omml_Models_CTMathPr::__lml_validate_field_7, Omml_Models_CTMathPr::__lml_validate_field_8, Omml_Models_CTMathPr::__lml_validate_field_9, Omml_Models_CTMathPr::__lml_validate_field_10, Omml_Models_CTMathPr::__lml_validate_field_11, Omml_Models_CTMathPr::__lml_validate_field_12, Omml_Models_CTMathPr::__lml_validate_field_13, Omml_Models_CTMathPr::__lml_validate_field_14, Omml_Models_CTMathPr::__lml_validate_field_15];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.wrap_indent {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_right {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count>1 {return Err(invalid("Omml::Models::CTMathPr@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTMathPr@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.math_font { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "math_font", "invalid_document")); } }
 if let Presence::Value(values)=&self.math_font { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.brk_bin { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "brk_bin", "invalid_document")); } }
 if let Presence::Value(values)=&self.brk_bin { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.brk_bin_sub { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "brk_bin_sub", "invalid_document")); } }
 if let Presence::Value(values)=&self.brk_bin_sub { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.small_frac { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "small_frac", "invalid_document")); } }
 if let Presence::Value(values)=&self.small_frac { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.disp_def { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "disp_def", "invalid_document")); } }
 if let Presence::Value(values)=&self.disp_def { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.l_margin { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "l_margin", "invalid_document")); } }
 if let Presence::Value(values)=&self.l_margin { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_margin { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "r_margin", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_margin { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.def_jc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "def_jc", "invalid_document")); } }
 if let Presence::Value(values)=&self.def_jc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.pre_sp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "pre_sp", "invalid_document")); } }
 if let Presence::Value(values)=&self.pre_sp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.post_sp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "post_sp", "invalid_document")); } }
 if let Presence::Value(values)=&self.post_sp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.inter_sp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "inter_sp", "invalid_document")); } }
 if let Presence::Value(values)=&self.inter_sp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.intra_sp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "intra_sp", "invalid_document")); } }
 if let Presence::Value(values)=&self.intra_sp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_indent { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_right { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.int_lim { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "int_lim", "invalid_document")); } }
 if let Presence::Value(values)=&self.int_lim { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.nary_lim { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTMathPr@omml", "nary_lim", "invalid_document")); } }
 if let Presence::Value(values)=&self.nary_lim { for v in values { v.validate_phase(choices)?; } }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.wrap_indent {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_right {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count>1 {return Err(invalid("Omml::Models::CTMathPr@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTMathPr@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -4474,7 +5262,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -4503,10 +5291,25 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTNary, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNary::__lml_validate_field_0, Omml_Models_CTNary::__lml_validate_field_1, Omml_Models_CTNary::__lml_validate_field_2, Omml_Models_CTNary::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.nary_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNary@omml", "nary_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.nary_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sup { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -4542,16 +5345,37 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTNaryPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNaryPr::__lml_validate_field_0, Omml_Models_CTNaryPr::__lml_validate_field_1, Omml_Models_CTNaryPr::__lml_validate_field_2, Omml_Models_CTNaryPr::__lml_validate_field_3, Omml_Models_CTNaryPr::__lml_validate_field_4, Omml_Models_CTNaryPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.chr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNaryPr@omml", "chr", "invalid_document")); } }
 if let Presence::Value(values)=&self.chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lim_loc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNaryPr@omml", "lim_loc", "invalid_document")); } }
 if let Presence::Value(values)=&self.lim_loc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.grow { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNaryPr@omml", "grow", "invalid_document")); } }
 if let Presence::Value(values)=&self.grow { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub_hide { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNaryPr@omml", "sub_hide", "invalid_document")); } }
 if let Presence::Value(values)=&self.sub_hide { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sup_hide { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNaryPr@omml", "sup_hide", "invalid_document")); } }
 if let Presence::Value(values)=&self.sup_hide { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNaryPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4591,10 +5415,22 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTNonVisualDrawingProps, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_0, Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_1, Omml_Models_CTNonVisualDrawingProps::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hlink_click { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNonVisualDrawingProps@omml", "hlink_click", "invalid_document")); } }
 if let Presence::Value(values)=&self.hlink_click { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hlink_hover { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNonVisualDrawingProps@omml", "hlink_hover", "invalid_document")); } }
 if let Presence::Value(values)=&self.hlink_hover { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ext_lst { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNonVisualDrawingProps@omml", "ext_lst", "invalid_document")); } }
 if let Presence::Value(values)=&self.ext_lst { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4619,8 +5455,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTNonVisualGraphicFrameProperties, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTNonVisualGraphicFrameProperties::__lml_validate_field_0, Omml_Models_CTNonVisualGraphicFrameProperties::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.graphic_frame_locks { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNonVisualGraphicFrameProperties@omml", "graphic_frame_locks", "invalid_document")); } }
 if let Presence::Value(values)=&self.graphic_frame_locks { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ext_lst { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTNonVisualGraphicFrameProperties@omml", "ext_lst", "invalid_document")); } }
 if let Presence::Value(values)=&self.ext_lst { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -4777,56 +5622,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "proof_err", "invalid_document")); } }
-if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "perm_start", "invalid_document")); } }
-if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "perm_end", "invalid_document")); } }
-if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "ins", "invalid_document")); } }
-if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "del", "invalid_document")); } }
-if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMath::__lml_validate_field_0, Omml_Models_CTOMath::__lml_validate_field_1, Omml_Models_CTOMath::__lml_validate_field_2, Omml_Models_CTOMath::__lml_validate_field_3, Omml_Models_CTOMath::__lml_validate_field_4, Omml_Models_CTOMath::__lml_validate_field_5, Omml_Models_CTOMath::__lml_validate_field_6, Omml_Models_CTOMath::__lml_validate_field_7, Omml_Models_CTOMath::__lml_validate_field_8, Omml_Models_CTOMath::__lml_validate_field_9, Omml_Models_CTOMath::__lml_validate_field_10, Omml_Models_CTOMath::__lml_validate_field_11, Omml_Models_CTOMath::__lml_validate_field_12, Omml_Models_CTOMath::__lml_validate_field_13, Omml_Models_CTOMath::__lml_validate_field_14, Omml_Models_CTOMath::__lml_validate_field_15, Omml_Models_CTOMath::__lml_validate_field_16, Omml_Models_CTOMath::__lml_validate_field_17, Omml_Models_CTOMath::__lml_validate_field_18, Omml_Models_CTOMath::__lml_validate_field_19, Omml_Models_CTOMath::__lml_validate_field_20, Omml_Models_CTOMath::__lml_validate_field_21, Omml_Models_CTOMath::__lml_validate_field_22, Omml_Models_CTOMath::__lml_validate_field_23, Omml_Models_CTOMath::__lml_validate_field_24, Omml_Models_CTOMath::__lml_validate_field_25, Omml_Models_CTOMath::__lml_validate_field_26, Omml_Models_CTOMath::__lml_validate_field_27, Omml_Models_CTOMath::__lml_validate_field_28, Omml_Models_CTOMath::__lml_validate_field_29, Omml_Models_CTOMath::__lml_validate_field_30, Omml_Models_CTOMath::__lml_validate_field_31, Omml_Models_CTOMath::__lml_validate_field_32, Omml_Models_CTOMath::__lml_validate_field_33, Omml_Models_CTOMath::__lml_validate_field_34, Omml_Models_CTOMath::__lml_validate_field_35, Omml_Models_CTOMath::__lml_validate_field_36, Omml_Models_CTOMath::__lml_validate_field_37, Omml_Models_CTOMath::__lml_validate_field_38, Omml_Models_CTOMath::__lml_validate_field_39, Omml_Models_CTOMath::__lml_validate_field_40, Omml_Models_CTOMath::__lml_validate_field_41, Omml_Models_CTOMath::__lml_validate_field_42, Omml_Models_CTOMath::__lml_validate_field_43, Omml_Models_CTOMath::__lml_validate_field_44];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTOMath@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "acc" => match &self.acc { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -4875,6 +5673,191 @@ if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collectio
 "o_math_para" => match &self.o_math_para { Presence::Value(_)=>1, _=>0 },
 "o_math" => match &self.o_math { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::CTOMath@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTOMath@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "proof_err", "invalid_document")); } }
+if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "perm_start", "invalid_document")); } }
+if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "perm_end", "invalid_document")); } }
+if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "ins", "invalid_document")); } }
+if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMath@omml", "del", "invalid_document")); } }
+if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_38(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_39(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_40(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_41(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_42(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_43(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_44(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5038,62 +6021,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.arg_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "arg_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.arg_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.t { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "t", "invalid_document")); } }
-if let Presence::Value(values)=&self.t { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "ctrl_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "proof_err", "invalid_document")); } }
-if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "perm_start", "invalid_document")); } }
-if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "perm_end", "invalid_document")); } }
-if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "ins", "invalid_document")); } }
-if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "del", "invalid_document")); } }
-if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathArg, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathArg::__lml_validate_field_0, Omml_Models_CTOMathArg::__lml_validate_field_1, Omml_Models_CTOMathArg::__lml_validate_field_2, Omml_Models_CTOMathArg::__lml_validate_field_3, Omml_Models_CTOMathArg::__lml_validate_field_4, Omml_Models_CTOMathArg::__lml_validate_field_5, Omml_Models_CTOMathArg::__lml_validate_field_6, Omml_Models_CTOMathArg::__lml_validate_field_7, Omml_Models_CTOMathArg::__lml_validate_field_8, Omml_Models_CTOMathArg::__lml_validate_field_9, Omml_Models_CTOMathArg::__lml_validate_field_10, Omml_Models_CTOMathArg::__lml_validate_field_11, Omml_Models_CTOMathArg::__lml_validate_field_12, Omml_Models_CTOMathArg::__lml_validate_field_13, Omml_Models_CTOMathArg::__lml_validate_field_14, Omml_Models_CTOMathArg::__lml_validate_field_15, Omml_Models_CTOMathArg::__lml_validate_field_16, Omml_Models_CTOMathArg::__lml_validate_field_17, Omml_Models_CTOMathArg::__lml_validate_field_18, Omml_Models_CTOMathArg::__lml_validate_field_19, Omml_Models_CTOMathArg::__lml_validate_field_20, Omml_Models_CTOMathArg::__lml_validate_field_21, Omml_Models_CTOMathArg::__lml_validate_field_22, Omml_Models_CTOMathArg::__lml_validate_field_23, Omml_Models_CTOMathArg::__lml_validate_field_24, Omml_Models_CTOMathArg::__lml_validate_field_25, Omml_Models_CTOMathArg::__lml_validate_field_26, Omml_Models_CTOMathArg::__lml_validate_field_27, Omml_Models_CTOMathArg::__lml_validate_field_28, Omml_Models_CTOMathArg::__lml_validate_field_29, Omml_Models_CTOMathArg::__lml_validate_field_30, Omml_Models_CTOMathArg::__lml_validate_field_31, Omml_Models_CTOMathArg::__lml_validate_field_32, Omml_Models_CTOMathArg::__lml_validate_field_33, Omml_Models_CTOMathArg::__lml_validate_field_34, Omml_Models_CTOMathArg::__lml_validate_field_35, Omml_Models_CTOMathArg::__lml_validate_field_36, Omml_Models_CTOMathArg::__lml_validate_field_37, Omml_Models_CTOMathArg::__lml_validate_field_38, Omml_Models_CTOMathArg::__lml_validate_field_39, Omml_Models_CTOMathArg::__lml_validate_field_40, Omml_Models_CTOMathArg::__lml_validate_field_41, Omml_Models_CTOMathArg::__lml_validate_field_42, Omml_Models_CTOMathArg::__lml_validate_field_43, Omml_Models_CTOMathArg::__lml_validate_field_44, Omml_Models_CTOMathArg::__lml_validate_field_45, Omml_Models_CTOMathArg::__lml_validate_field_46, Omml_Models_CTOMathArg::__lml_validate_field_47];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTOMathArg@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "arg_pr" => match &self.arg_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -5146,6 +6076,206 @@ if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collectio
 "o_math" => match &self.o_math { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::CTOMathArg@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTOMathArg@omml", "__lml_content", "invalid_ordered_content")); } } } }
 Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.arg_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "arg_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.arg_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.t { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "t", "invalid_document")); } }
+if let Presence::Value(values)=&self.t { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "ctrl_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "proof_err", "invalid_document")); } }
+if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "perm_start", "invalid_document")); } }
+if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "perm_end", "invalid_document")); } }
+if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "ins", "invalid_document")); } }
+if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArg@omml", "del", "invalid_document")); } }
+if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_38(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_39(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_40(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_41(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_42(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_43(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_44(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_45(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_46(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_47(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -5164,6 +6294,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathArgPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathArgPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.arg_sz { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathArgPr@omml", "arg_sz", "invalid_document")); } }
 if let Presence::Value(values)=&self.arg_sz { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -5207,7 +6343,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5236,17 +6372,29 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.o_math_para_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathPara@omml", "o_math_para_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.o_math_para_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.o_math { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::CTOMathPara@omml", "o_math", "invalid_document")); } }
-if let Presence::Value(values)=&self.o_math { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathPara, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathPara::__lml_validate_field_0, Omml_Models_CTOMathPara::__lml_validate_field_1, Omml_Models_CTOMathPara::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTOMathPara@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "o_math_para_pr" => match &self.o_math_para_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
 "o_math" => match &self.o_math { Presence::Value(v)=>v.len() as u64, _=>0 },
 "r" => match &self.r { Presence::Value(v)=>v.len() as u64, _=>0 },
 _ => return Err(invalid("Omml::Models::CTOMathPara@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTOMathPara@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math_para_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathPara@omml", "o_math_para_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.o_math_para_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::CTOMathPara@omml", "o_math", "invalid_document")); } }
+if let Presence::Value(values)=&self.o_math { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5266,6 +6414,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTOMathParaPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOMathParaPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.jc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTOMathParaPr@omml", "jc", "invalid_document")); } }
 if let Presence::Value(values)=&self.jc { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -5293,6 +6447,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTObject, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTObject::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.control { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTObject@omml", "control", "invalid_document")); } }
 if let Presence::Value(values)=&self.control { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -5313,7 +6473,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5333,6 +6493,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTOfficeArtExtensionList, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTOfficeArtExtensionList::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.ext { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
@@ -5382,7 +6548,7 @@ if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_C
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5470,7 +6636,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5509,7 +6675,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5592,7 +6758,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -5615,8 +6781,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTPhant, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPhant::__lml_validate_field_0, Omml_Models_CTPhant::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.phant_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPhant@omml", "phant_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.phant_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -5652,16 +6827,37 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTPhantPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPhantPr::__lml_validate_field_0, Omml_Models_CTPhantPr::__lml_validate_field_1, Omml_Models_CTPhantPr::__lml_validate_field_2, Omml_Models_CTPhantPr::__lml_validate_field_3, Omml_Models_CTPhantPr::__lml_validate_field_4, Omml_Models_CTPhantPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.show { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPhantPr@omml", "show", "invalid_document")); } }
 if let Presence::Value(values)=&self.show { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.zero_wid { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPhantPr@omml", "zero_wid", "invalid_document")); } }
 if let Presence::Value(values)=&self.zero_wid { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.zero_asc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPhantPr@omml", "zero_asc", "invalid_document")); } }
 if let Presence::Value(values)=&self.zero_asc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.zero_desc { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPhantPr@omml", "zero_desc", "invalid_document")); } }
 if let Presence::Value(values)=&self.zero_desc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.transp { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPhantPr@omml", "transp", "invalid_document")); } }
 if let Presence::Value(values)=&self.transp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPhantPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -5686,8 +6882,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTPicture, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPicture::__lml_validate_field_0, Omml_Models_CTPicture::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.movie { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPicture@omml", "movie", "invalid_document")); } }
 if let Presence::Value(values)=&self.movie { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.control { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTPicture@omml", "control", "invalid_document")); } }
 if let Presence::Value(values)=&self.control { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -5709,6 +6914,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTPlaceholder, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTPlaceholder::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.doc_part { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -5731,7 +6942,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5927,7 +7138,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -5969,7 +7180,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -6091,42 +7302,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTR@omml", "r_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.word_r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTR@omml", "word_r_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.word_r_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.br { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.del_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.instr_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.del_instr_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.no_break_hyphen { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.soft_hyphen { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.day_short { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.month_short { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.year_short { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.day_long { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.month_long { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.year_long { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.annotation_ref { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.footnote_ref { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.endnote_ref { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.separator { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.continuation_separator { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.sym { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.pg_num { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.cr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.tab { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.object { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.pict { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.fld_char { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.ruby { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.footnote_reference { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.endnote_reference { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.comment_reference { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.drawing { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.ptab { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.last_rendered_page_break { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.t { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_CTR, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTR::__lml_validate_field_0, Omml_Models_CTR::__lml_validate_field_1, Omml_Models_CTR::__lml_validate_field_2, Omml_Models_CTR::__lml_validate_field_3, Omml_Models_CTR::__lml_validate_field_4, Omml_Models_CTR::__lml_validate_field_5, Omml_Models_CTR::__lml_validate_field_6, Omml_Models_CTR::__lml_validate_field_7, Omml_Models_CTR::__lml_validate_field_8, Omml_Models_CTR::__lml_validate_field_9, Omml_Models_CTR::__lml_validate_field_10, Omml_Models_CTR::__lml_validate_field_11, Omml_Models_CTR::__lml_validate_field_12, Omml_Models_CTR::__lml_validate_field_13, Omml_Models_CTR::__lml_validate_field_14, Omml_Models_CTR::__lml_validate_field_15, Omml_Models_CTR::__lml_validate_field_16, Omml_Models_CTR::__lml_validate_field_17, Omml_Models_CTR::__lml_validate_field_18, Omml_Models_CTR::__lml_validate_field_19, Omml_Models_CTR::__lml_validate_field_20, Omml_Models_CTR::__lml_validate_field_21, Omml_Models_CTR::__lml_validate_field_22, Omml_Models_CTR::__lml_validate_field_23, Omml_Models_CTR::__lml_validate_field_24, Omml_Models_CTR::__lml_validate_field_25, Omml_Models_CTR::__lml_validate_field_26, Omml_Models_CTR::__lml_validate_field_27, Omml_Models_CTR::__lml_validate_field_28, Omml_Models_CTR::__lml_validate_field_29, Omml_Models_CTR::__lml_validate_field_30, Omml_Models_CTR::__lml_validate_field_31, Omml_Models_CTR::__lml_validate_field_32, Omml_Models_CTR::__lml_validate_field_33];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTR@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "r_pr" => match &self.r_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -6166,6 +7344,144 @@ if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collectio
 _ => return Err(invalid("Omml::Models::CTR@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTR@omml", "__lml_content", "invalid_ordered_content")); } } } }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if count==0{return Ok(true);}Ok(true)})()? {return Err(invalid("Omml::Models::CTR@omml","","choice_lower_bound"));} }
 Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTR@omml", "r_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.word_r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTR@omml", "word_r_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.word_r_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.br { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.del_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.instr_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.del_instr_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.no_break_hyphen { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.soft_hyphen { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.day_short { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.month_short { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.year_short { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.day_long { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.month_long { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.year_long { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.annotation_ref { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.footnote_ref { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.endnote_ref { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.separator { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.continuation_separator { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.sym { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.pg_num { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.cr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.tab { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.object { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.pict { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.fld_char { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.ruby { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.footnote_reference { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.endnote_reference { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.comment_reference { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.drawing { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.ptab { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.last_rendered_page_break { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.t { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -6199,18 +7515,39 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRPR, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPR::__lml_validate_field_0, Omml_Models_CTRPR::__lml_validate_field_1, Omml_Models_CTRPR::__lml_validate_field_2, Omml_Models_CTRPR::__lml_validate_field_3, Omml_Models_CTRPR::__lml_validate_field_4, Omml_Models_CTRPR::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.nor {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTRPR@omml","","choice_upper_bound"));}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTRPR@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTRPR@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lit { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPR@omml", "lit", "invalid_document")); } }
 if let Presence::Value(values)=&self.lit { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.nor { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.brk { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPR@omml", "brk", "invalid_document")); } }
 if let Presence::Value(values)=&self.brk { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.aln { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPR@omml", "aln", "invalid_document")); } }
 if let Presence::Value(values)=&self.aln { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.scr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPR@omml", "scr", "invalid_document")); } }
 if let Presence::Value(values)=&self.scr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sty { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPR@omml", "sty", "invalid_document")); } }
 if let Presence::Value(values)=&self.sty { for v in values { v.validate_phase(choices)?; } }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.nor {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::CTRPR@omml","","choice_upper_bound"));}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::CTRPR@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::CTRPR@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -6347,84 +7684,207 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPr::__lml_validate_field_0, Omml_Models_CTRPr::__lml_validate_field_1, Omml_Models_CTRPr::__lml_validate_field_2, Omml_Models_CTRPr::__lml_validate_field_3, Omml_Models_CTRPr::__lml_validate_field_4, Omml_Models_CTRPr::__lml_validate_field_5, Omml_Models_CTRPr::__lml_validate_field_6, Omml_Models_CTRPr::__lml_validate_field_7, Omml_Models_CTRPr::__lml_validate_field_8, Omml_Models_CTRPr::__lml_validate_field_9, Omml_Models_CTRPr::__lml_validate_field_10, Omml_Models_CTRPr::__lml_validate_field_11, Omml_Models_CTRPr::__lml_validate_field_12, Omml_Models_CTRPr::__lml_validate_field_13, Omml_Models_CTRPr::__lml_validate_field_14, Omml_Models_CTRPr::__lml_validate_field_15, Omml_Models_CTRPr::__lml_validate_field_16, Omml_Models_CTRPr::__lml_validate_field_17, Omml_Models_CTRPr::__lml_validate_field_18, Omml_Models_CTRPr::__lml_validate_field_19, Omml_Models_CTRPr::__lml_validate_field_20, Omml_Models_CTRPr::__lml_validate_field_21, Omml_Models_CTRPr::__lml_validate_field_22, Omml_Models_CTRPr::__lml_validate_field_23, Omml_Models_CTRPr::__lml_validate_field_24, Omml_Models_CTRPr::__lml_validate_field_25, Omml_Models_CTRPr::__lml_validate_field_26, Omml_Models_CTRPr::__lml_validate_field_27, Omml_Models_CTRPr::__lml_validate_field_28, Omml_Models_CTRPr::__lml_validate_field_29, Omml_Models_CTRPr::__lml_validate_field_30, Omml_Models_CTRPr::__lml_validate_field_31, Omml_Models_CTRPr::__lml_validate_field_32, Omml_Models_CTRPr::__lml_validate_field_33, Omml_Models_CTRPr::__lml_validate_field_34, Omml_Models_CTRPr::__lml_validate_field_35, Omml_Models_CTRPr::__lml_validate_field_36, Omml_Models_CTRPr::__lml_validate_field_37, Omml_Models_CTRPr::__lml_validate_field_38, Omml_Models_CTRPr::__lml_validate_field_39];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_pr_change { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "r_pr_change", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_pr_change { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_style { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "r_style", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_style { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_fonts { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "r_fonts", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_fonts { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.b { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "b", "invalid_document")); } }
 if let Presence::Value(values)=&self.b { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.b_cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "b_cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.b_cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.i { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "i", "invalid_document")); } }
 if let Presence::Value(values)=&self.i { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.i_cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "i_cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.i_cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.caps { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "caps", "invalid_document")); } }
 if let Presence::Value(values)=&self.caps { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.small_caps { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "small_caps", "invalid_document")); } }
 if let Presence::Value(values)=&self.small_caps { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.strike { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "strike", "invalid_document")); } }
 if let Presence::Value(values)=&self.strike { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.dstrike { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "dstrike", "invalid_document")); } }
 if let Presence::Value(values)=&self.dstrike { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.outline { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "outline", "invalid_document")); } }
 if let Presence::Value(values)=&self.outline { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.shadow { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "shadow", "invalid_document")); } }
 if let Presence::Value(values)=&self.shadow { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.emboss { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "emboss", "invalid_document")); } }
 if let Presence::Value(values)=&self.emboss { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.imprint { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "imprint", "invalid_document")); } }
 if let Presence::Value(values)=&self.imprint { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.no_proof { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "no_proof", "invalid_document")); } }
 if let Presence::Value(values)=&self.no_proof { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.snap_to_grid { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "snap_to_grid", "invalid_document")); } }
 if let Presence::Value(values)=&self.snap_to_grid { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.vanish { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "vanish", "invalid_document")); } }
 if let Presence::Value(values)=&self.vanish { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.web_hidden { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "web_hidden", "invalid_document")); } }
 if let Presence::Value(values)=&self.web_hidden { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.color { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "color", "invalid_document")); } }
 if let Presence::Value(values)=&self.color { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.spacing { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "spacing", "invalid_document")); } }
 if let Presence::Value(values)=&self.spacing { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.w { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "w", "invalid_document")); } }
 if let Presence::Value(values)=&self.w { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.kern { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "kern", "invalid_document")); } }
 if let Presence::Value(values)=&self.kern { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.position { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "position", "invalid_document")); } }
 if let Presence::Value(values)=&self.position { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sz { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "sz", "invalid_document")); } }
 if let Presence::Value(values)=&self.sz { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sz_cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "sz_cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.sz_cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.highlight { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "highlight", "invalid_document")); } }
 if let Presence::Value(values)=&self.highlight { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.u { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "u", "invalid_document")); } }
 if let Presence::Value(values)=&self.u { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.effect { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "effect", "invalid_document")); } }
 if let Presence::Value(values)=&self.effect { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bdr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "bdr", "invalid_document")); } }
 if let Presence::Value(values)=&self.bdr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.shd { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "shd", "invalid_document")); } }
 if let Presence::Value(values)=&self.shd { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.fit_text { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "fit_text", "invalid_document")); } }
 if let Presence::Value(values)=&self.fit_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.vert_align { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "vert_align", "invalid_document")); } }
 if let Presence::Value(values)=&self.vert_align { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.rtl { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "rtl", "invalid_document")); } }
 if let Presence::Value(values)=&self.rtl { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.em { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "em", "invalid_document")); } }
 if let Presence::Value(values)=&self.em { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lang { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "lang", "invalid_document")); } }
 if let Presence::Value(values)=&self.lang { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.east_asian_layout { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "east_asian_layout", "invalid_document")); } }
 if let Presence::Value(values)=&self.east_asian_layout { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_38(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.spec_vanish { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "spec_vanish", "invalid_document")); } }
 if let Presence::Value(values)=&self.spec_vanish { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_39(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPr@omml", "o_math", "invalid_document")); } }
 if let Presence::Value(values)=&self.o_math { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -6455,6 +7915,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRPrChange, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPrChange::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_pr { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrChange@omml", "r_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -6590,82 +8056,202 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRPrOriginal, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRPrOriginal::__lml_validate_field_0, Omml_Models_CTRPrOriginal::__lml_validate_field_1, Omml_Models_CTRPrOriginal::__lml_validate_field_2, Omml_Models_CTRPrOriginal::__lml_validate_field_3, Omml_Models_CTRPrOriginal::__lml_validate_field_4, Omml_Models_CTRPrOriginal::__lml_validate_field_5, Omml_Models_CTRPrOriginal::__lml_validate_field_6, Omml_Models_CTRPrOriginal::__lml_validate_field_7, Omml_Models_CTRPrOriginal::__lml_validate_field_8, Omml_Models_CTRPrOriginal::__lml_validate_field_9, Omml_Models_CTRPrOriginal::__lml_validate_field_10, Omml_Models_CTRPrOriginal::__lml_validate_field_11, Omml_Models_CTRPrOriginal::__lml_validate_field_12, Omml_Models_CTRPrOriginal::__lml_validate_field_13, Omml_Models_CTRPrOriginal::__lml_validate_field_14, Omml_Models_CTRPrOriginal::__lml_validate_field_15, Omml_Models_CTRPrOriginal::__lml_validate_field_16, Omml_Models_CTRPrOriginal::__lml_validate_field_17, Omml_Models_CTRPrOriginal::__lml_validate_field_18, Omml_Models_CTRPrOriginal::__lml_validate_field_19, Omml_Models_CTRPrOriginal::__lml_validate_field_20, Omml_Models_CTRPrOriginal::__lml_validate_field_21, Omml_Models_CTRPrOriginal::__lml_validate_field_22, Omml_Models_CTRPrOriginal::__lml_validate_field_23, Omml_Models_CTRPrOriginal::__lml_validate_field_24, Omml_Models_CTRPrOriginal::__lml_validate_field_25, Omml_Models_CTRPrOriginal::__lml_validate_field_26, Omml_Models_CTRPrOriginal::__lml_validate_field_27, Omml_Models_CTRPrOriginal::__lml_validate_field_28, Omml_Models_CTRPrOriginal::__lml_validate_field_29, Omml_Models_CTRPrOriginal::__lml_validate_field_30, Omml_Models_CTRPrOriginal::__lml_validate_field_31, Omml_Models_CTRPrOriginal::__lml_validate_field_32, Omml_Models_CTRPrOriginal::__lml_validate_field_33, Omml_Models_CTRPrOriginal::__lml_validate_field_34, Omml_Models_CTRPrOriginal::__lml_validate_field_35, Omml_Models_CTRPrOriginal::__lml_validate_field_36, Omml_Models_CTRPrOriginal::__lml_validate_field_37, Omml_Models_CTRPrOriginal::__lml_validate_field_38];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_style { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "r_style", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_style { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_fonts { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "r_fonts", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_fonts { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.b { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "b", "invalid_document")); } }
 if let Presence::Value(values)=&self.b { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.b_cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "b_cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.b_cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.i { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "i", "invalid_document")); } }
 if let Presence::Value(values)=&self.i { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.i_cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "i_cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.i_cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.caps { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "caps", "invalid_document")); } }
 if let Presence::Value(values)=&self.caps { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.small_caps { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "small_caps", "invalid_document")); } }
 if let Presence::Value(values)=&self.small_caps { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.strike { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "strike", "invalid_document")); } }
 if let Presence::Value(values)=&self.strike { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.dstrike { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "dstrike", "invalid_document")); } }
 if let Presence::Value(values)=&self.dstrike { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.outline { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "outline", "invalid_document")); } }
 if let Presence::Value(values)=&self.outline { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.shadow { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "shadow", "invalid_document")); } }
 if let Presence::Value(values)=&self.shadow { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.emboss { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "emboss", "invalid_document")); } }
 if let Presence::Value(values)=&self.emboss { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.imprint { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "imprint", "invalid_document")); } }
 if let Presence::Value(values)=&self.imprint { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.no_proof { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "no_proof", "invalid_document")); } }
 if let Presence::Value(values)=&self.no_proof { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.snap_to_grid { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "snap_to_grid", "invalid_document")); } }
 if let Presence::Value(values)=&self.snap_to_grid { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.vanish { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "vanish", "invalid_document")); } }
 if let Presence::Value(values)=&self.vanish { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.web_hidden { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "web_hidden", "invalid_document")); } }
 if let Presence::Value(values)=&self.web_hidden { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.color { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "color", "invalid_document")); } }
 if let Presence::Value(values)=&self.color { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.spacing { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "spacing", "invalid_document")); } }
 if let Presence::Value(values)=&self.spacing { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.w { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "w", "invalid_document")); } }
 if let Presence::Value(values)=&self.w { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.kern { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "kern", "invalid_document")); } }
 if let Presence::Value(values)=&self.kern { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.position { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "position", "invalid_document")); } }
 if let Presence::Value(values)=&self.position { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sz { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "sz", "invalid_document")); } }
 if let Presence::Value(values)=&self.sz { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sz_cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "sz_cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.sz_cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.highlight { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "highlight", "invalid_document")); } }
 if let Presence::Value(values)=&self.highlight { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.u { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "u", "invalid_document")); } }
 if let Presence::Value(values)=&self.u { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.effect { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "effect", "invalid_document")); } }
 if let Presence::Value(values)=&self.effect { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bdr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "bdr", "invalid_document")); } }
 if let Presence::Value(values)=&self.bdr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.shd { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "shd", "invalid_document")); } }
 if let Presence::Value(values)=&self.shd { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.fit_text { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "fit_text", "invalid_document")); } }
 if let Presence::Value(values)=&self.fit_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.vert_align { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "vert_align", "invalid_document")); } }
 if let Presence::Value(values)=&self.vert_align { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.rtl { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "rtl", "invalid_document")); } }
 if let Presence::Value(values)=&self.rtl { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.cs { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "cs", "invalid_document")); } }
 if let Presence::Value(values)=&self.cs { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.em { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "em", "invalid_document")); } }
 if let Presence::Value(values)=&self.em { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lang { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "lang", "invalid_document")); } }
 if let Presence::Value(values)=&self.lang { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.east_asian_layout { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "east_asian_layout", "invalid_document")); } }
 if let Presence::Value(values)=&self.east_asian_layout { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.spec_vanish { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "spec_vanish", "invalid_document")); } }
 if let Presence::Value(values)=&self.spec_vanish { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_38(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRPrOriginal@omml", "o_math", "invalid_document")); } }
 if let Presence::Value(values)=&self.o_math { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -6693,9 +8279,21 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRad, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRad::__lml_validate_field_0, Omml_Models_CTRad::__lml_validate_field_1, Omml_Models_CTRad::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.rad_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRad@omml", "rad_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.rad_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.deg { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -6719,8 +8317,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRadPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRadPr::__lml_validate_field_0, Omml_Models_CTRadPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.deg_hide { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRadPr@omml", "deg_hide", "invalid_document")); } }
 if let Presence::Value(values)=&self.deg_hide { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRadPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -6741,7 +8348,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -6767,8 +8374,20 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRuby, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRuby::__lml_validate_field_0, Omml_Models_CTRuby::__lml_validate_field_1, Omml_Models_CTRuby::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ruby_pr { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.rt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ruby_base { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -6817,7 +8436,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -6912,36 +8531,117 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRubyContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRubyContent::__lml_validate_field_0, Omml_Models_CTRubyContent::__lml_validate_field_1, Omml_Models_CTRubyContent::__lml_validate_field_2, Omml_Models_CTRubyContent::__lml_validate_field_3, Omml_Models_CTRubyContent::__lml_validate_field_4, Omml_Models_CTRubyContent::__lml_validate_field_5, Omml_Models_CTRubyContent::__lml_validate_field_6, Omml_Models_CTRubyContent::__lml_validate_field_7, Omml_Models_CTRubyContent::__lml_validate_field_8, Omml_Models_CTRubyContent::__lml_validate_field_9, Omml_Models_CTRubyContent::__lml_validate_field_10, Omml_Models_CTRubyContent::__lml_validate_field_11, Omml_Models_CTRubyContent::__lml_validate_field_12, Omml_Models_CTRubyContent::__lml_validate_field_13, Omml_Models_CTRubyContent::__lml_validate_field_14, Omml_Models_CTRubyContent::__lml_validate_field_15, Omml_Models_CTRubyContent::__lml_validate_field_16, Omml_Models_CTRubyContent::__lml_validate_field_17, Omml_Models_CTRubyContent::__lml_validate_field_18, Omml_Models_CTRubyContent::__lml_validate_field_19, Omml_Models_CTRubyContent::__lml_validate_field_20, Omml_Models_CTRubyContent::__lml_validate_field_21, Omml_Models_CTRubyContent::__lml_validate_field_22, Omml_Models_CTRubyContent::__lml_validate_field_23, Omml_Models_CTRubyContent::__lml_validate_field_24, Omml_Models_CTRubyContent::__lml_validate_field_25];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRubyContent@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRubyContent@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRubyContent@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRubyContent@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRubyContent@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -6977,11 +8677,32 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRubyPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRubyPr::__lml_validate_field_0, Omml_Models_CTRubyPr::__lml_validate_field_1, Omml_Models_CTRubyPr::__lml_validate_field_2, Omml_Models_CTRubyPr::__lml_validate_field_3, Omml_Models_CTRubyPr::__lml_validate_field_4, Omml_Models_CTRubyPr::__lml_validate_field_5];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ruby_align { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hps { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hps_raise { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hps_base_text { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lid { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.dirty { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRubyPr@omml", "dirty", "invalid_document")); } }
 if let Presence::Value(values)=&self.dirty { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -7153,60 +8874,207 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTRunTrackChange, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTRunTrackChange::__lml_validate_field_3, Omml_Models_CTRunTrackChange::__lml_validate_field_4, Omml_Models_CTRunTrackChange::__lml_validate_field_5, Omml_Models_CTRunTrackChange::__lml_validate_field_6, Omml_Models_CTRunTrackChange::__lml_validate_field_7, Omml_Models_CTRunTrackChange::__lml_validate_field_8, Omml_Models_CTRunTrackChange::__lml_validate_field_9, Omml_Models_CTRunTrackChange::__lml_validate_field_10, Omml_Models_CTRunTrackChange::__lml_validate_field_11, Omml_Models_CTRunTrackChange::__lml_validate_field_12, Omml_Models_CTRunTrackChange::__lml_validate_field_13, Omml_Models_CTRunTrackChange::__lml_validate_field_14, Omml_Models_CTRunTrackChange::__lml_validate_field_15, Omml_Models_CTRunTrackChange::__lml_validate_field_16, Omml_Models_CTRunTrackChange::__lml_validate_field_17, Omml_Models_CTRunTrackChange::__lml_validate_field_18, Omml_Models_CTRunTrackChange::__lml_validate_field_19, Omml_Models_CTRunTrackChange::__lml_validate_field_20, Omml_Models_CTRunTrackChange::__lml_validate_field_21, Omml_Models_CTRunTrackChange::__lml_validate_field_22, Omml_Models_CTRunTrackChange::__lml_validate_field_23, Omml_Models_CTRunTrackChange::__lml_validate_field_24, Omml_Models_CTRunTrackChange::__lml_validate_field_25, Omml_Models_CTRunTrackChange::__lml_validate_field_26, Omml_Models_CTRunTrackChange::__lml_validate_field_27, Omml_Models_CTRunTrackChange::__lml_validate_field_28, Omml_Models_CTRunTrackChange::__lml_validate_field_29, Omml_Models_CTRunTrackChange::__lml_validate_field_30, Omml_Models_CTRunTrackChange::__lml_validate_field_31, Omml_Models_CTRunTrackChange::__lml_validate_field_32, Omml_Models_CTRunTrackChange::__lml_validate_field_33, Omml_Models_CTRunTrackChange::__lml_validate_field_34, Omml_Models_CTRunTrackChange::__lml_validate_field_35, Omml_Models_CTRunTrackChange::__lml_validate_field_36, Omml_Models_CTRunTrackChange::__lml_validate_field_37, Omml_Models_CTRunTrackChange::__lml_validate_field_38, Omml_Models_CTRunTrackChange::__lml_validate_field_39, Omml_Models_CTRunTrackChange::__lml_validate_field_40, Omml_Models_CTRunTrackChange::__lml_validate_field_41, Omml_Models_CTRunTrackChange::__lml_validate_field_42, Omml_Models_CTRunTrackChange::__lml_validate_field_43, Omml_Models_CTRunTrackChange::__lml_validate_field_44, Omml_Models_CTRunTrackChange::__lml_validate_field_45, Omml_Models_CTRunTrackChange::__lml_validate_field_46, Omml_Models_CTRunTrackChange::__lml_validate_field_47, Omml_Models_CTRunTrackChange::__lml_validate_field_48, Omml_Models_CTRunTrackChange::__lml_validate_field_49, Omml_Models_CTRunTrackChange::__lml_validate_field_50];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if count==0{return Ok(true);}Ok(true)})()? {return Err(invalid("Omml::Models::CTRunTrackChange@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRunTrackChange@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRunTrackChange@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRunTrackChange@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRunTrackChange@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTRunTrackChange@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_38(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_39(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_40(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_41(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_42(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_43(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_44(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_45(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_46(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_47(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_48(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_49(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_50(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if count==0{return Ok(true);}Ok(true)})()? {return Err(invalid("Omml::Models::CTRunTrackChange@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7238,11 +9106,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.s_pre_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSPre@omml", "s_pre_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.s_pre_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.sub { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.sup { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSPre, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSPre::__lml_validate_field_0, Omml_Models_CTSPre::__lml_validate_field_1, Omml_Models_CTSPre::__lml_validate_field_2, Omml_Models_CTSPre::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTSPre@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "s_pre_pr" => match &self.s_pre_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -7250,6 +9116,23 @@ if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collectio
 "sup" => match &self.sup { Presence::Value(_)=>1, _=>0 },
 "e" => match &self.e { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::CTSPre@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTSPre@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.s_pre_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSPre@omml", "s_pre_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.s_pre_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.sub { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.sup { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7269,6 +9152,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSPrePr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSPrePr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSPrePr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -7296,9 +9185,21 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSSub, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSub::__lml_validate_field_0, Omml_Models_CTSSub::__lml_validate_field_1, Omml_Models_CTSSub::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.s_sub_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSub@omml", "s_sub_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.s_sub_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -7319,6 +9220,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSSubPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSubPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSubPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -7352,11 +9259,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.s_sub_sup_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSubSup@omml", "s_sub_sup_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.s_sub_sup_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.sub { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.sup { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSSubSup, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSubSup::__lml_validate_field_0, Omml_Models_CTSSubSup::__lml_validate_field_1, Omml_Models_CTSSubSup::__lml_validate_field_2, Omml_Models_CTSSubSup::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::CTSSubSup@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "s_sub_sup_pr" => match &self.s_sub_sup_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -7364,6 +9269,23 @@ if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collectio
 "sub" => match &self.sub { Presence::Value(_)=>1, _=>0 },
 "sup" => match &self.sup { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::CTSSubSup@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::CTSSubSup@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.s_sub_sup_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSubSup@omml", "s_sub_sup_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.s_sub_sup_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.sub { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.sup { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7386,8 +9308,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSSubSupPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSubSupPr::__lml_validate_field_0, Omml_Models_CTSSubSupPr::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.aln_scr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSubSupPr@omml", "aln_scr", "invalid_document")); } }
 if let Presence::Value(values)=&self.aln_scr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSubSupPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -7415,9 +9346,21 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSSup, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSup::__lml_validate_field_0, Omml_Models_CTSSup::__lml_validate_field_1, Omml_Models_CTSSup::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.s_sup_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSup@omml", "s_sup_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.s_sup_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.e { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sup { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -7438,6 +9381,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSSupPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSSupPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ctrl_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSSupPr@omml", "ctrl_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.ctrl_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -7487,7 +9436,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7510,6 +9459,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtComboBox, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtComboBox::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.list_item { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
@@ -7623,42 +9578,141 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtContentRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtContentRun::__lml_validate_field_0, Omml_Models_CTSdtContentRun::__lml_validate_field_1, Omml_Models_CTSdtContentRun::__lml_validate_field_2, Omml_Models_CTSdtContentRun::__lml_validate_field_3, Omml_Models_CTSdtContentRun::__lml_validate_field_4, Omml_Models_CTSdtContentRun::__lml_validate_field_5, Omml_Models_CTSdtContentRun::__lml_validate_field_6, Omml_Models_CTSdtContentRun::__lml_validate_field_7, Omml_Models_CTSdtContentRun::__lml_validate_field_8, Omml_Models_CTSdtContentRun::__lml_validate_field_9, Omml_Models_CTSdtContentRun::__lml_validate_field_10, Omml_Models_CTSdtContentRun::__lml_validate_field_11, Omml_Models_CTSdtContentRun::__lml_validate_field_12, Omml_Models_CTSdtContentRun::__lml_validate_field_13, Omml_Models_CTSdtContentRun::__lml_validate_field_14, Omml_Models_CTSdtContentRun::__lml_validate_field_15, Omml_Models_CTSdtContentRun::__lml_validate_field_16, Omml_Models_CTSdtContentRun::__lml_validate_field_17, Omml_Models_CTSdtContentRun::__lml_validate_field_18, Omml_Models_CTSdtContentRun::__lml_validate_field_19, Omml_Models_CTSdtContentRun::__lml_validate_field_20, Omml_Models_CTSdtContentRun::__lml_validate_field_21, Omml_Models_CTSdtContentRun::__lml_validate_field_22, Omml_Models_CTSdtContentRun::__lml_validate_field_23, Omml_Models_CTSdtContentRun::__lml_validate_field_24, Omml_Models_CTSdtContentRun::__lml_validate_field_25, Omml_Models_CTSdtContentRun::__lml_validate_field_26, Omml_Models_CTSdtContentRun::__lml_validate_field_27, Omml_Models_CTSdtContentRun::__lml_validate_field_28, Omml_Models_CTSdtContentRun::__lml_validate_field_29, Omml_Models_CTSdtContentRun::__lml_validate_field_30, Omml_Models_CTSdtContentRun::__lml_validate_field_31];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.fld_simple { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hyperlink { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub_doc { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtContentRun@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtContentRun@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtContentRun@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtContentRun@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtContentRun@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -7691,12 +9745,27 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtDate, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtDate::__lml_validate_field_0, Omml_Models_CTSdtDate::__lml_validate_field_1, Omml_Models_CTSdtDate::__lml_validate_field_2, Omml_Models_CTSdtDate::__lml_validate_field_3];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.date_format { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtDate@omml", "date_format", "invalid_document")); } }
 if let Presence::Value(values)=&self.date_format { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.lid { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtDate@omml", "lid", "invalid_document")); } }
 if let Presence::Value(values)=&self.lid { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.store_mapped_data_as { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtDate@omml", "store_mapped_data_as", "invalid_document")); } }
 if let Presence::Value(values)=&self.store_mapped_data_as { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.calendar { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtDate@omml", "calendar", "invalid_document")); } }
 if let Presence::Value(values)=&self.calendar { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -7737,7 +9806,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7763,10 +9832,22 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtDocPart, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtDocPart::__lml_validate_field_0, Omml_Models_CTSdtDocPart::__lml_validate_field_1, Omml_Models_CTSdtDocPart::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.doc_part_gallery { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtDocPart@omml", "doc_part_gallery", "invalid_document")); } }
 if let Presence::Value(values)=&self.doc_part_gallery { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.doc_part_category { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtDocPart@omml", "doc_part_category", "invalid_document")); } }
 if let Presence::Value(values)=&self.doc_part_category { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.doc_part_unique { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtDocPart@omml", "doc_part_unique", "invalid_document")); } }
 if let Presence::Value(values)=&self.doc_part_unique { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -7791,6 +9872,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtDropDownList, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtDropDownList::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.list_item { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
@@ -7811,8 +9898,14 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtEndPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtEndPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.r_pr {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTSdtEndPr@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7834,7 +9927,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7914,28 +10007,94 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.alias { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lock { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.placeholder { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.showing_plc_hdr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.data_binding { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.temporary { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.id { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.tag { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.equation { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.combo_box { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.date { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.doc_part_obj { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.doc_part_list { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.drop_down_list { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.picture { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.rich_text { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.text { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.citation { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.group { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bibliography { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtPr::__lml_validate_field_0, Omml_Models_CTSdtPr::__lml_validate_field_1, Omml_Models_CTSdtPr::__lml_validate_field_2, Omml_Models_CTSdtPr::__lml_validate_field_3, Omml_Models_CTSdtPr::__lml_validate_field_4, Omml_Models_CTSdtPr::__lml_validate_field_5, Omml_Models_CTSdtPr::__lml_validate_field_6, Omml_Models_CTSdtPr::__lml_validate_field_7, Omml_Models_CTSdtPr::__lml_validate_field_8, Omml_Models_CTSdtPr::__lml_validate_field_9, Omml_Models_CTSdtPr::__lml_validate_field_10, Omml_Models_CTSdtPr::__lml_validate_field_11, Omml_Models_CTSdtPr::__lml_validate_field_12, Omml_Models_CTSdtPr::__lml_validate_field_13, Omml_Models_CTSdtPr::__lml_validate_field_14, Omml_Models_CTSdtPr::__lml_validate_field_15, Omml_Models_CTSdtPr::__lml_validate_field_16, Omml_Models_CTSdtPr::__lml_validate_field_17, Omml_Models_CTSdtPr::__lml_validate_field_18, Omml_Models_CTSdtPr::__lml_validate_field_19, Omml_Models_CTSdtPr::__lml_validate_field_20];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.r_pr {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.alias {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.lock {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.placeholder {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.showing_plc_hdr {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.data_binding {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.temporary {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.id {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if let Presence::Value(v)=&self.tag {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}count+=1;}}if (||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.equation {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.combo_box {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.date {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.doc_part_obj {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.doc_part_list {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.drop_down_list {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.picture {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.rich_text {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.text {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.citation {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.group {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.bibliography {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count>1 {return Err(invalid("Omml::Models::CTSdtPr@omml","","choice_upper_bound"));}Ok(true)})()? {count+=1;}if count==0{return Ok(true);}if count<1 {return Ok(false);}Ok(true)})()? {return Err(invalid("Omml::Models::CTSdtPr@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.alias { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lock { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.placeholder { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.showing_plc_hdr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.data_binding { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.temporary { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.id { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.tag { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.equation { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.combo_box { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.date { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.doc_part_obj { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.doc_part_list { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.drop_down_list { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.picture { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.rich_text { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.text { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.citation { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.group { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bibliography { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -7961,10 +10120,22 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSdtRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSdtRun::__lml_validate_field_0, Omml_Models_CTSdtRun::__lml_validate_field_1, Omml_Models_CTSdtRun::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtRun@omml", "sdt_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.sdt_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt_end_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtRun@omml", "sdt_end_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.sdt_end_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt_content { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSdtRun@omml", "sdt_content", "invalid_document")); } }
 if let Presence::Value(values)=&self.sdt_content { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -8014,7 +10185,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8334,7 +10505,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8370,7 +10541,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8389,7 +10560,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8408,7 +10579,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8591,44 +10762,146 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSimpleField, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSimpleField::__lml_validate_field_0, Omml_Models_CTSimpleField::__lml_validate_field_4, Omml_Models_CTSimpleField::__lml_validate_field_5, Omml_Models_CTSimpleField::__lml_validate_field_6, Omml_Models_CTSimpleField::__lml_validate_field_7, Omml_Models_CTSimpleField::__lml_validate_field_8, Omml_Models_CTSimpleField::__lml_validate_field_9, Omml_Models_CTSimpleField::__lml_validate_field_10, Omml_Models_CTSimpleField::__lml_validate_field_11, Omml_Models_CTSimpleField::__lml_validate_field_12, Omml_Models_CTSimpleField::__lml_validate_field_13, Omml_Models_CTSimpleField::__lml_validate_field_14, Omml_Models_CTSimpleField::__lml_validate_field_15, Omml_Models_CTSimpleField::__lml_validate_field_16, Omml_Models_CTSimpleField::__lml_validate_field_17, Omml_Models_CTSimpleField::__lml_validate_field_18, Omml_Models_CTSimpleField::__lml_validate_field_19, Omml_Models_CTSimpleField::__lml_validate_field_20, Omml_Models_CTSimpleField::__lml_validate_field_21, Omml_Models_CTSimpleField::__lml_validate_field_22, Omml_Models_CTSimpleField::__lml_validate_field_23, Omml_Models_CTSimpleField::__lml_validate_field_24, Omml_Models_CTSimpleField::__lml_validate_field_25, Omml_Models_CTSimpleField::__lml_validate_field_26, Omml_Models_CTSimpleField::__lml_validate_field_27, Omml_Models_CTSimpleField::__lml_validate_field_28, Omml_Models_CTSimpleField::__lml_validate_field_29, Omml_Models_CTSimpleField::__lml_validate_field_30, Omml_Models_CTSimpleField::__lml_validate_field_31, Omml_Models_CTSimpleField::__lml_validate_field_32, Omml_Models_CTSimpleField::__lml_validate_field_33, Omml_Models_CTSimpleField::__lml_validate_field_34, Omml_Models_CTSimpleField::__lml_validate_field_35];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.fld_data { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSimpleField@omml", "fld_data", "invalid_document")); } }
 if let Presence::Value(values)=&self.fld_data { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.fld_simple { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hyperlink { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub_doc { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSimpleField@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSimpleField@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSimpleField@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSimpleField@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSimpleField@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -8649,6 +10922,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSmartTagPr, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSmartTagPr::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.attr { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
@@ -8771,44 +11050,146 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTSmartTagRun, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTSmartTagRun::__lml_validate_field_0, Omml_Models_CTSmartTagRun::__lml_validate_field_3, Omml_Models_CTSmartTagRun::__lml_validate_field_4, Omml_Models_CTSmartTagRun::__lml_validate_field_5, Omml_Models_CTSmartTagRun::__lml_validate_field_6, Omml_Models_CTSmartTagRun::__lml_validate_field_7, Omml_Models_CTSmartTagRun::__lml_validate_field_8, Omml_Models_CTSmartTagRun::__lml_validate_field_9, Omml_Models_CTSmartTagRun::__lml_validate_field_10, Omml_Models_CTSmartTagRun::__lml_validate_field_11, Omml_Models_CTSmartTagRun::__lml_validate_field_12, Omml_Models_CTSmartTagRun::__lml_validate_field_13, Omml_Models_CTSmartTagRun::__lml_validate_field_14, Omml_Models_CTSmartTagRun::__lml_validate_field_15, Omml_Models_CTSmartTagRun::__lml_validate_field_16, Omml_Models_CTSmartTagRun::__lml_validate_field_17, Omml_Models_CTSmartTagRun::__lml_validate_field_18, Omml_Models_CTSmartTagRun::__lml_validate_field_19, Omml_Models_CTSmartTagRun::__lml_validate_field_20, Omml_Models_CTSmartTagRun::__lml_validate_field_21, Omml_Models_CTSmartTagRun::__lml_validate_field_22, Omml_Models_CTSmartTagRun::__lml_validate_field_23, Omml_Models_CTSmartTagRun::__lml_validate_field_24, Omml_Models_CTSmartTagRun::__lml_validate_field_25, Omml_Models_CTSmartTagRun::__lml_validate_field_26, Omml_Models_CTSmartTagRun::__lml_validate_field_27, Omml_Models_CTSmartTagRun::__lml_validate_field_28, Omml_Models_CTSmartTagRun::__lml_validate_field_29, Omml_Models_CTSmartTagRun::__lml_validate_field_30, Omml_Models_CTSmartTagRun::__lml_validate_field_31, Omml_Models_CTSmartTagRun::__lml_validate_field_32, Omml_Models_CTSmartTagRun::__lml_validate_field_33, Omml_Models_CTSmartTagRun::__lml_validate_field_34];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSmartTagRun@omml", "smart_tag_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.smart_tag_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.fld_simple { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hyperlink { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub_doc { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSmartTagRun@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSmartTagRun@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSmartTagRun@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSmartTagRun@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTSmartTagRun@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
@@ -8828,7 +11209,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8847,7 +11228,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8889,7 +11270,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -8911,7 +11292,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8947,7 +11328,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -8998,7 +11379,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9017,7 +11398,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9053,7 +11434,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9078,7 +11459,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9106,7 +11487,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9125,7 +11506,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9144,7 +11525,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9316,7 +11697,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9355,7 +11736,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9371,7 +11752,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9420,7 +11801,7 @@ if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_C
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9456,7 +11837,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9472,7 +11853,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9498,8 +11879,17 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapPath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapPath::__lml_validate_field_0, Omml_Models_CTWrapPath::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.start { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTWrapPath@omml", "start", "invalid_document")); } }
 if let Presence::Value(values)=&self.start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.line_to { if (v.len() as u64) < 2u64 { return Err(invalid("Omml::Models::CTWrapPath@omml", "line_to", "invalid_document")); } }
 if let Presence::Value(values)=&self.line_to { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -9559,6 +11949,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapSquare, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapSquare::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.effect_extent { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTWrapSquare@omml", "effect_extent", "invalid_document")); } }
 if let Presence::Value(values)=&self.effect_extent { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -9612,6 +12008,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapThrough, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapThrough::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_polygon { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTWrapThrough@omml", "wrap_polygon", "invalid_document")); } }
 if let Presence::Value(values)=&self.wrap_polygon { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -9665,6 +12067,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapTight, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapTight::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.wrap_polygon { if (v.len() as u64) < 1u64 || (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTWrapTight@omml", "wrap_polygon", "invalid_document")); } }
 if let Presence::Value(values)=&self.wrap_polygon { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -9692,6 +12100,12 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_CTWrapTopBottom, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_CTWrapTopBottom::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.effect_extent { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::CTWrapTopBottom@omml", "effect_extent", "invalid_document")); } }
 if let Presence::Value(values)=&self.effect_extent { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
@@ -9732,7 +12146,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types)]
@@ -9771,7 +12185,7 @@ pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
-fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+fn validate_phase(&self, _choices:bool)->Result<(),ValidationError>{
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9875,41 +12289,131 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_EGContentRunContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGContentRunContent::__lml_validate_field_0, Omml_Models_EGContentRunContent::__lml_validate_field_1, Omml_Models_EGContentRunContent::__lml_validate_field_2, Omml_Models_EGContentRunContent::__lml_validate_field_3, Omml_Models_EGContentRunContent::__lml_validate_field_4, Omml_Models_EGContentRunContent::__lml_validate_field_5, Omml_Models_EGContentRunContent::__lml_validate_field_6, Omml_Models_EGContentRunContent::__lml_validate_field_7, Omml_Models_EGContentRunContent::__lml_validate_field_8, Omml_Models_EGContentRunContent::__lml_validate_field_9, Omml_Models_EGContentRunContent::__lml_validate_field_10, Omml_Models_EGContentRunContent::__lml_validate_field_11, Omml_Models_EGContentRunContent::__lml_validate_field_12, Omml_Models_EGContentRunContent::__lml_validate_field_13, Omml_Models_EGContentRunContent::__lml_validate_field_14, Omml_Models_EGContentRunContent::__lml_validate_field_15, Omml_Models_EGContentRunContent::__lml_validate_field_16, Omml_Models_EGContentRunContent::__lml_validate_field_17, Omml_Models_EGContentRunContent::__lml_validate_field_18, Omml_Models_EGContentRunContent::__lml_validate_field_19, Omml_Models_EGContentRunContent::__lml_validate_field_20, Omml_Models_EGContentRunContent::__lml_validate_field_21, Omml_Models_EGContentRunContent::__lml_validate_field_22, Omml_Models_EGContentRunContent::__lml_validate_field_23, Omml_Models_EGContentRunContent::__lml_validate_field_24, Omml_Models_EGContentRunContent::__lml_validate_field_25, Omml_Models_EGContentRunContent::__lml_validate_field_26, Omml_Models_EGContentRunContent::__lml_validate_field_27, Omml_Models_EGContentRunContent::__lml_validate_field_28];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.custom_xml {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.smart_tag {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.sdt {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.r {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGContentRunContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGContentRunContent@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGContentRunContent@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGContentRunContent@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGContentRunContent@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGContentRunContent@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGContentRunContent@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.custom_xml {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.smart_tag {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.sdt {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.r {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGContentRunContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGContentRunContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -9932,9 +12436,18 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGMathContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGMathContent::__lml_validate_field_0, Omml_Models_EGMathContent::__lml_validate_field_1];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.o_math_para {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.o_math {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGMathContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGMathContent@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10086,57 +12599,195 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_EGOMathElements, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGOMathElements::__lml_validate_field_0, Omml_Models_EGOMathElements::__lml_validate_field_1, Omml_Models_EGOMathElements::__lml_validate_field_2, Omml_Models_EGOMathElements::__lml_validate_field_3, Omml_Models_EGOMathElements::__lml_validate_field_4, Omml_Models_EGOMathElements::__lml_validate_field_5, Omml_Models_EGOMathElements::__lml_validate_field_6, Omml_Models_EGOMathElements::__lml_validate_field_7, Omml_Models_EGOMathElements::__lml_validate_field_8, Omml_Models_EGOMathElements::__lml_validate_field_9, Omml_Models_EGOMathElements::__lml_validate_field_10, Omml_Models_EGOMathElements::__lml_validate_field_11, Omml_Models_EGOMathElements::__lml_validate_field_12, Omml_Models_EGOMathElements::__lml_validate_field_13, Omml_Models_EGOMathElements::__lml_validate_field_14, Omml_Models_EGOMathElements::__lml_validate_field_15, Omml_Models_EGOMathElements::__lml_validate_field_16, Omml_Models_EGOMathElements::__lml_validate_field_17, Omml_Models_EGOMathElements::__lml_validate_field_18, Omml_Models_EGOMathElements::__lml_validate_field_19, Omml_Models_EGOMathElements::__lml_validate_field_20, Omml_Models_EGOMathElements::__lml_validate_field_21, Omml_Models_EGOMathElements::__lml_validate_field_22, Omml_Models_EGOMathElements::__lml_validate_field_23, Omml_Models_EGOMathElements::__lml_validate_field_24, Omml_Models_EGOMathElements::__lml_validate_field_25, Omml_Models_EGOMathElements::__lml_validate_field_26, Omml_Models_EGOMathElements::__lml_validate_field_27, Omml_Models_EGOMathElements::__lml_validate_field_28, Omml_Models_EGOMathElements::__lml_validate_field_29, Omml_Models_EGOMathElements::__lml_validate_field_30, Omml_Models_EGOMathElements::__lml_validate_field_31, Omml_Models_EGOMathElements::__lml_validate_field_32, Omml_Models_EGOMathElements::__lml_validate_field_33, Omml_Models_EGOMathElements::__lml_validate_field_34, Omml_Models_EGOMathElements::__lml_validate_field_35, Omml_Models_EGOMathElements::__lml_validate_field_36, Omml_Models_EGOMathElements::__lml_validate_field_37, Omml_Models_EGOMathElements::__lml_validate_field_38, Omml_Models_EGOMathElements::__lml_validate_field_39, Omml_Models_EGOMathElements::__lml_validate_field_40, Omml_Models_EGOMathElements::__lml_validate_field_41, Omml_Models_EGOMathElements::__lml_validate_field_42, Omml_Models_EGOMathElements::__lml_validate_field_43, Omml_Models_EGOMathElements::__lml_validate_field_44];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGOMathElements@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGOMathElements@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGOMathElements@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGOMathElements@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGOMathElements@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGOMathElements@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGOMathElements@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_38(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_39(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_40(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_41(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_42(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_43(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_44(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGOMathElements@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGOMathElements@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10213,27 +12864,90 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_EGOMathMathElements, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGOMathMathElements::__lml_validate_field_0, Omml_Models_EGOMathMathElements::__lml_validate_field_1, Omml_Models_EGOMathMathElements::__lml_validate_field_2, Omml_Models_EGOMathMathElements::__lml_validate_field_3, Omml_Models_EGOMathMathElements::__lml_validate_field_4, Omml_Models_EGOMathMathElements::__lml_validate_field_5, Omml_Models_EGOMathMathElements::__lml_validate_field_6, Omml_Models_EGOMathMathElements::__lml_validate_field_7, Omml_Models_EGOMathMathElements::__lml_validate_field_8, Omml_Models_EGOMathMathElements::__lml_validate_field_9, Omml_Models_EGOMathMathElements::__lml_validate_field_10, Omml_Models_EGOMathMathElements::__lml_validate_field_11, Omml_Models_EGOMathMathElements::__lml_validate_field_12, Omml_Models_EGOMathMathElements::__lml_validate_field_13, Omml_Models_EGOMathMathElements::__lml_validate_field_14, Omml_Models_EGOMathMathElements::__lml_validate_field_15, Omml_Models_EGOMathMathElements::__lml_validate_field_16, Omml_Models_EGOMathMathElements::__lml_validate_field_17, Omml_Models_EGOMathMathElements::__lml_validate_field_18, Omml_Models_EGOMathMathElements::__lml_validate_field_19];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.acc {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.bar {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.box_ {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.border_box {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.d {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.eq_arr {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.f {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.func {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.group_chr {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.lim_low {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.lim_upp {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.m {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.nary {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.phant {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.rad {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_pre {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_sub {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_sub_sup {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.s_sup {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.r {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGOMathMathElements@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGOMathMathElements@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10346,44 +13060,143 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_EGPContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGPContent::__lml_validate_field_0, Omml_Models_EGPContent::__lml_validate_field_1, Omml_Models_EGPContent::__lml_validate_field_2, Omml_Models_EGPContent::__lml_validate_field_3, Omml_Models_EGPContent::__lml_validate_field_4, Omml_Models_EGPContent::__lml_validate_field_5, Omml_Models_EGPContent::__lml_validate_field_6, Omml_Models_EGPContent::__lml_validate_field_7, Omml_Models_EGPContent::__lml_validate_field_8, Omml_Models_EGPContent::__lml_validate_field_9, Omml_Models_EGPContent::__lml_validate_field_10, Omml_Models_EGPContent::__lml_validate_field_11, Omml_Models_EGPContent::__lml_validate_field_12, Omml_Models_EGPContent::__lml_validate_field_13, Omml_Models_EGPContent::__lml_validate_field_14, Omml_Models_EGPContent::__lml_validate_field_15, Omml_Models_EGPContent::__lml_validate_field_16, Omml_Models_EGPContent::__lml_validate_field_17, Omml_Models_EGPContent::__lml_validate_field_18, Omml_Models_EGPContent::__lml_validate_field_19, Omml_Models_EGPContent::__lml_validate_field_20, Omml_Models_EGPContent::__lml_validate_field_21, Omml_Models_EGPContent::__lml_validate_field_22, Omml_Models_EGPContent::__lml_validate_field_23, Omml_Models_EGPContent::__lml_validate_field_24, Omml_Models_EGPContent::__lml_validate_field_25, Omml_Models_EGPContent::__lml_validate_field_26, Omml_Models_EGPContent::__lml_validate_field_27, Omml_Models_EGPContent::__lml_validate_field_28, Omml_Models_EGPContent::__lml_validate_field_29, Omml_Models_EGPContent::__lml_validate_field_30, Omml_Models_EGPContent::__lml_validate_field_31];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.fld_simple {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.hyperlink {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.sub_doc {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGPContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGPContent@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(values)=&self.fld_simple { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.hyperlink { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sub_doc { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.smart_tag { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.sdt { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGPContent@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGPContent@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGPContent@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGPContent@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGPContent@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.fld_simple {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.hyperlink {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.sub_doc {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGPContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGPContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10409,11 +13222,23 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_EGRPrMath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRPrMath::__lml_validate_field_0, Omml_Models_EGRPrMath::__lml_validate_field_1, Omml_Models_EGRPrMath::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.ins {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.del {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRPrMath@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRPrMath@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGRPrMath@omml", "r_pr", "invalid_document")); } }
 if let Presence::Value(values)=&self.r_pr { for v in values { v.validate_phase(choices)?; } }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.ins {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.del {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRPrMath@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRPrMath@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10478,23 +13303,74 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGRangeMarkupElements, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRangeMarkupElements::__lml_validate_field_0, Omml_Models_EGRangeMarkupElements::__lml_validate_field_1, Omml_Models_EGRangeMarkupElements::__lml_validate_field_2, Omml_Models_EGRangeMarkupElements::__lml_validate_field_3, Omml_Models_EGRangeMarkupElements::__lml_validate_field_4, Omml_Models_EGRangeMarkupElements::__lml_validate_field_5, Omml_Models_EGRangeMarkupElements::__lml_validate_field_6, Omml_Models_EGRangeMarkupElements::__lml_validate_field_7, Omml_Models_EGRangeMarkupElements::__lml_validate_field_8, Omml_Models_EGRangeMarkupElements::__lml_validate_field_9, Omml_Models_EGRangeMarkupElements::__lml_validate_field_10, Omml_Models_EGRangeMarkupElements::__lml_validate_field_11, Omml_Models_EGRangeMarkupElements::__lml_validate_field_12, Omml_Models_EGRangeMarkupElements::__lml_validate_field_13, Omml_Models_EGRangeMarkupElements::__lml_validate_field_14, Omml_Models_EGRangeMarkupElements::__lml_validate_field_15];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.bookmark_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.bookmark_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_from_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_from_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_to_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_to_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.comment_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.comment_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_ins_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_ins_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_del_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_del_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_from_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_from_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_to_range_start {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.custom_xml_move_to_range_end {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRangeMarkupElements@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRangeMarkupElements@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10589,38 +13465,119 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
+type __LmlFieldCheck = fn(&Omml_Models_EGRubyContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRubyContent::__lml_validate_field_0, Omml_Models_EGRubyContent::__lml_validate_field_1, Omml_Models_EGRubyContent::__lml_validate_field_2, Omml_Models_EGRubyContent::__lml_validate_field_3, Omml_Models_EGRubyContent::__lml_validate_field_4, Omml_Models_EGRubyContent::__lml_validate_field_5, Omml_Models_EGRubyContent::__lml_validate_field_6, Omml_Models_EGRubyContent::__lml_validate_field_7, Omml_Models_EGRubyContent::__lml_validate_field_8, Omml_Models_EGRubyContent::__lml_validate_field_9, Omml_Models_EGRubyContent::__lml_validate_field_10, Omml_Models_EGRubyContent::__lml_validate_field_11, Omml_Models_EGRubyContent::__lml_validate_field_12, Omml_Models_EGRubyContent::__lml_validate_field_13, Omml_Models_EGRubyContent::__lml_validate_field_14, Omml_Models_EGRubyContent::__lml_validate_field_15, Omml_Models_EGRubyContent::__lml_validate_field_16, Omml_Models_EGRubyContent::__lml_validate_field_17, Omml_Models_EGRubyContent::__lml_validate_field_18, Omml_Models_EGRubyContent::__lml_validate_field_19, Omml_Models_EGRubyContent::__lml_validate_field_20, Omml_Models_EGRubyContent::__lml_validate_field_21, Omml_Models_EGRubyContent::__lml_validate_field_22, Omml_Models_EGRubyContent::__lml_validate_field_23, Omml_Models_EGRubyContent::__lml_validate_field_24, Omml_Models_EGRubyContent::__lml_validate_field_25];
+for field in __LML_FIELDS { field(self, choices)?; }
+if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.r {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRubyContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRubyContent@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.r { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGRubyContent@omml", "proof_err", "invalid_document")); } }
 if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGRubyContent@omml", "perm_start", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGRubyContent@omml", "perm_end", "invalid_document")); } }
 if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGRubyContent@omml", "ins", "invalid_document")); } }
 if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::EGRubyContent@omml", "del", "invalid_document")); } }
 if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
 if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
-if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.r {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRubyContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRubyContent@omml","","choice_lower_bound"));} }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10640,8 +13597,14 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.t { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_EGRunInnerContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRunInnerContent::__lml_validate_field_0];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.t {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRunInnerContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRunInnerContent@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.t { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10733,32 +13696,110 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_EGRunLevelElts, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGRunLevelElts::__lml_validate_field_0, Omml_Models_EGRunLevelElts::__lml_validate_field_1, Omml_Models_EGRunLevelElts::__lml_validate_field_2, Omml_Models_EGRunLevelElts::__lml_validate_field_3, Omml_Models_EGRunLevelElts::__lml_validate_field_4, Omml_Models_EGRunLevelElts::__lml_validate_field_5, Omml_Models_EGRunLevelElts::__lml_validate_field_6, Omml_Models_EGRunLevelElts::__lml_validate_field_7, Omml_Models_EGRunLevelElts::__lml_validate_field_8, Omml_Models_EGRunLevelElts::__lml_validate_field_9, Omml_Models_EGRunLevelElts::__lml_validate_field_10, Omml_Models_EGRunLevelElts::__lml_validate_field_11, Omml_Models_EGRunLevelElts::__lml_validate_field_12, Omml_Models_EGRunLevelElts::__lml_validate_field_13, Omml_Models_EGRunLevelElts::__lml_validate_field_14, Omml_Models_EGRunLevelElts::__lml_validate_field_15, Omml_Models_EGRunLevelElts::__lml_validate_field_16, Omml_Models_EGRunLevelElts::__lml_validate_field_17, Omml_Models_EGRunLevelElts::__lml_validate_field_18, Omml_Models_EGRunLevelElts::__lml_validate_field_19, Omml_Models_EGRunLevelElts::__lml_validate_field_20, Omml_Models_EGRunLevelElts::__lml_validate_field_21, Omml_Models_EGRunLevelElts::__lml_validate_field_22, Omml_Models_EGRunLevelElts::__lml_validate_field_23, Omml_Models_EGRunLevelElts::__lml_validate_field_24];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.proof_err {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.perm_start {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.perm_end {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.ins {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.del {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}count+=1;}}if let Presence::Value(v)=&self.move_from {let empty=false;if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.move_to {let empty=false;if !empty {count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGRunLevelElts@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10868,38 +13909,134 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.br { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.del_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.instr_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.del_instr_text { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.no_break_hyphen { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.soft_hyphen { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.day_short { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.month_short { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.year_short { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.day_long { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.month_long { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.year_long { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.annotation_ref { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.footnote_ref { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.endnote_ref { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.separator { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.continuation_separator { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.sym { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.pg_num { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.cr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.tab { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.object { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.pict { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.fld_char { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.ruby { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.footnote_reference { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.endnote_reference { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.comment_reference { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.drawing { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.ptab { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.last_rendered_page_break { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_EGWordRunInnerContent, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGWordRunInnerContent::__lml_validate_field_0, Omml_Models_EGWordRunInnerContent::__lml_validate_field_1, Omml_Models_EGWordRunInnerContent::__lml_validate_field_2, Omml_Models_EGWordRunInnerContent::__lml_validate_field_3, Omml_Models_EGWordRunInnerContent::__lml_validate_field_4, Omml_Models_EGWordRunInnerContent::__lml_validate_field_5, Omml_Models_EGWordRunInnerContent::__lml_validate_field_6, Omml_Models_EGWordRunInnerContent::__lml_validate_field_7, Omml_Models_EGWordRunInnerContent::__lml_validate_field_8, Omml_Models_EGWordRunInnerContent::__lml_validate_field_9, Omml_Models_EGWordRunInnerContent::__lml_validate_field_10, Omml_Models_EGWordRunInnerContent::__lml_validate_field_11, Omml_Models_EGWordRunInnerContent::__lml_validate_field_12, Omml_Models_EGWordRunInnerContent::__lml_validate_field_13, Omml_Models_EGWordRunInnerContent::__lml_validate_field_14, Omml_Models_EGWordRunInnerContent::__lml_validate_field_15, Omml_Models_EGWordRunInnerContent::__lml_validate_field_16, Omml_Models_EGWordRunInnerContent::__lml_validate_field_17, Omml_Models_EGWordRunInnerContent::__lml_validate_field_18, Omml_Models_EGWordRunInnerContent::__lml_validate_field_19, Omml_Models_EGWordRunInnerContent::__lml_validate_field_20, Omml_Models_EGWordRunInnerContent::__lml_validate_field_21, Omml_Models_EGWordRunInnerContent::__lml_validate_field_22, Omml_Models_EGWordRunInnerContent::__lml_validate_field_23, Omml_Models_EGWordRunInnerContent::__lml_validate_field_24, Omml_Models_EGWordRunInnerContent::__lml_validate_field_25, Omml_Models_EGWordRunInnerContent::__lml_validate_field_26, Omml_Models_EGWordRunInnerContent::__lml_validate_field_27, Omml_Models_EGWordRunInnerContent::__lml_validate_field_28, Omml_Models_EGWordRunInnerContent::__lml_validate_field_29, Omml_Models_EGWordRunInnerContent::__lml_validate_field_30];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.br {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.del_text {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.instr_text {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.del_instr_text {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.no_break_hyphen {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.soft_hyphen {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.day_short {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.month_short {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.year_short {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.day_long {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.month_long {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.year_long {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.annotation_ref {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.footnote_ref {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.endnote_ref {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.separator {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.continuation_separator {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.sym {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.pg_num {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.cr {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.tab {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.object {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.pict {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.fld_char {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.ruby {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.footnote_reference {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.endnote_reference {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.comment_reference {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.drawing {let empty=v.is_empty();if !empty {count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.ptab {let empty=v.is_empty();if !empty {count+=1;}}if let Presence::Value(v)=&self.last_rendered_page_break {let empty=v.is_empty();if !empty {count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGWordRunInnerContent@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGWordRunInnerContent@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.br { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.del_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.instr_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.del_instr_text { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.no_break_hyphen { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.soft_hyphen { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.day_short { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.month_short { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.year_short { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.day_long { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.month_long { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.year_long { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.annotation_ref { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.footnote_ref { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.endnote_ref { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.separator { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.continuation_separator { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.sym { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.pg_num { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.cr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.tab { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.object { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.pict { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.fld_char { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.ruby { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.footnote_reference { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.endnote_reference { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.comment_reference { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.drawing { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.ptab { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.last_rendered_page_break { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -10931,12 +14068,30 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.wrap_none { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.wrap_square { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.wrap_tight { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.wrap_through { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.wrap_top_and_bottom { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_EGWrapType, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_EGWrapType::__lml_validate_field_0, Omml_Models_EGWrapType::__lml_validate_field_1, Omml_Models_EGWrapType::__lml_validate_field_2, Omml_Models_EGWrapType::__lml_validate_field_3, Omml_Models_EGWrapType::__lml_validate_field_4];
+for field in __LML_FIELDS { field(self, choices)?; }
 if choices { if !(||->Result<bool,ValidationError>{let mut count=0u64;if let Presence::Value(v)=&self.wrap_none {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_square {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_tight {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_through {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if let Presence::Value(v)=&self.wrap_top_and_bottom {let empty=v.is_empty();if !empty {let batches=(v.len() as u64).div_ceil(1);if batches<1 {return Ok(false);}if batches>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}count+=1;}else{count+=1;}}if count==0{return Ok(true);}if count<1 {return Ok(false);}if count>1 {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_upper_bound"));}Ok(true)})()? {return Err(invalid("Omml::Models::EGWrapType@omml","","choice_lower_bound"));} }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.wrap_none { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.wrap_square { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.wrap_tight { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.wrap_through { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.wrap_top_and_bottom { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
@@ -11091,56 +14246,9 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "proof_err", "invalid_document")); } }
-if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "perm_start", "invalid_document")); } }
-if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "perm_end", "invalid_document")); } }
-if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "ins", "invalid_document")); } }
-if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "del", "invalid_document")); } }
-if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
-if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+type __LmlFieldCheck = fn(&Omml_Models_OMath, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_OMath::__lml_validate_field_0, Omml_Models_OMath::__lml_validate_field_1, Omml_Models_OMath::__lml_validate_field_2, Omml_Models_OMath::__lml_validate_field_3, Omml_Models_OMath::__lml_validate_field_4, Omml_Models_OMath::__lml_validate_field_5, Omml_Models_OMath::__lml_validate_field_6, Omml_Models_OMath::__lml_validate_field_7, Omml_Models_OMath::__lml_validate_field_8, Omml_Models_OMath::__lml_validate_field_9, Omml_Models_OMath::__lml_validate_field_10, Omml_Models_OMath::__lml_validate_field_11, Omml_Models_OMath::__lml_validate_field_12, Omml_Models_OMath::__lml_validate_field_13, Omml_Models_OMath::__lml_validate_field_14, Omml_Models_OMath::__lml_validate_field_15, Omml_Models_OMath::__lml_validate_field_16, Omml_Models_OMath::__lml_validate_field_17, Omml_Models_OMath::__lml_validate_field_18, Omml_Models_OMath::__lml_validate_field_19, Omml_Models_OMath::__lml_validate_field_20, Omml_Models_OMath::__lml_validate_field_21, Omml_Models_OMath::__lml_validate_field_22, Omml_Models_OMath::__lml_validate_field_23, Omml_Models_OMath::__lml_validate_field_24, Omml_Models_OMath::__lml_validate_field_25, Omml_Models_OMath::__lml_validate_field_26, Omml_Models_OMath::__lml_validate_field_27, Omml_Models_OMath::__lml_validate_field_28, Omml_Models_OMath::__lml_validate_field_29, Omml_Models_OMath::__lml_validate_field_30, Omml_Models_OMath::__lml_validate_field_31, Omml_Models_OMath::__lml_validate_field_32, Omml_Models_OMath::__lml_validate_field_33, Omml_Models_OMath::__lml_validate_field_34, Omml_Models_OMath::__lml_validate_field_35, Omml_Models_OMath::__lml_validate_field_36, Omml_Models_OMath::__lml_validate_field_37, Omml_Models_OMath::__lml_validate_field_38, Omml_Models_OMath::__lml_validate_field_39, Omml_Models_OMath::__lml_validate_field_40, Omml_Models_OMath::__lml_validate_field_41, Omml_Models_OMath::__lml_validate_field_42, Omml_Models_OMath::__lml_validate_field_43, Omml_Models_OMath::__lml_validate_field_44];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::OMath@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "acc" => match &self.acc { Presence::Value(v)=>v.len() as u64, _=>0 },
@@ -11190,6 +14298,191 @@ if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collectio
 "o_math" => match &self.o_math { Presence::Value(_)=>1, _=>0 },
 _ => return Err(invalid("Omml::Models::OMath@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::OMath@omml", "__lml_content", "invalid_ordered_content")); } } } }
 Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.acc { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.bar { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.box_ { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_3(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.border_box { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_4(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.d { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_5(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.eq_arr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_6(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.f { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_7(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.func { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_8(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.group_chr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_9(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_low { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_10(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.lim_upp { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_11(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.m { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_12(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.nary { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_13(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.phant { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_14(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.rad { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_15(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_pre { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_16(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_17(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sub_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_18(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.s_sup { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_19(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_20(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.proof_err { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "proof_err", "invalid_document")); } }
+if let Presence::Value(values)=&self.proof_err { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_21(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.perm_start { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "perm_start", "invalid_document")); } }
+if let Presence::Value(values)=&self.perm_start { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_22(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.perm_end { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "perm_end", "invalid_document")); } }
+if let Presence::Value(values)=&self.perm_end { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_23(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.ins { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "ins", "invalid_document")); } }
+if let Presence::Value(values)=&self.ins { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_24(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.del { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMath@omml", "del", "invalid_document")); } }
+if let Presence::Value(values)=&self.del { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_25(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_26(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_27(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_28(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.bookmark_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_29(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_30(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_31(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_32(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_33(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_34(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.comment_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_35(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_36(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_ins_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_37(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_38(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_del_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_39(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_40(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_from_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_41(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_start { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_42(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.custom_xml_move_to_range_end { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_43(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math_para { v.validate_phase(choices)?; }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_44(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math { v.validate_phase(choices)?; }
+Ok(()) }
 }
 #[allow(non_camel_case_types, non_snake_case)]
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -11217,16 +14510,28 @@ Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
 fn validate_phase(&self, choices:bool)->Result<(),ValidationError>{
-if let Presence::Value(v)=&self.o_math_para_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMathPara@omml", "o_math_para_pr", "invalid_document")); } }
-if let Presence::Value(values)=&self.o_math_para_pr { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(v)=&self.o_math { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::OMathPara@omml", "o_math", "invalid_document")); } }
-if let Presence::Value(values)=&self.o_math { for v in values { v.validate_phase(choices)?; } }
-if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
+type __LmlFieldCheck = fn(&Omml_Models_OMathPara, bool)->Result<(),ValidationError>;
+const __LML_FIELDS: &[__LmlFieldCheck] = &[Omml_Models_OMathPara::__lml_validate_field_0, Omml_Models_OMathPara::__lml_validate_field_1, Omml_Models_OMathPara::__lml_validate_field_2];
+for field in __LML_FIELDS { field(self, choices)?; }
 if matches!(self.__lml_content,Presence::Null) { return Err(invalid("Omml::Models::OMathPara@omml", "__lml_content", "invalid_ordered_content")); }
 if let Presence::Value(tokens)=&self.__lml_content { let mut seen=std::collections::BTreeSet::new(); for token in tokens { if let Some((member,index))=token.reference() { let count=match member {
 "o_math_para_pr" => match &self.o_math_para_pr { Presence::Value(v)=>v.len() as u64, _=>0 },
 "o_math" => match &self.o_math { Presence::Value(v)=>v.len() as u64, _=>0 },
 "r" => match &self.r { Presence::Value(v)=>v.len() as u64, _=>0 },
 _ => return Err(invalid("Omml::Models::OMathPara@omml", "__lml_content", "invalid_ordered_content")), }; if index>=count || !seen.insert((member,index)) { return Err(invalid("Omml::Models::OMathPara@omml", "__lml_content", "invalid_ordered_content")); } } } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_0(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math_para_pr { if (v.len() as u64) > 1u64 { return Err(invalid("Omml::Models::OMathPara@omml", "o_math_para_pr", "invalid_document")); } }
+if let Presence::Value(values)=&self.o_math_para_pr { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_1(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(v)=&self.o_math { if (v.len() as u64) < 1u64 { return Err(invalid("Omml::Models::OMathPara@omml", "o_math", "invalid_document")); } }
+if let Presence::Value(values)=&self.o_math { for v in values { v.validate_phase(choices)?; } }
+Ok(()) }
+#[inline(never)]
+fn __lml_validate_field_2(&self, choices:bool)->Result<(),ValidationError>{
+if let Presence::Value(values)=&self.r { for v in values { v.validate_phase(choices)?; } }
 Ok(()) }
 }
