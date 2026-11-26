@@ -223,6 +223,23 @@ impl ContentToken {
  _ => None,
  } }
 }
+#[derive(Clone, Debug, Default)]
+pub struct AppliedDefaults(Vec<String>);
+impl PartialEq for AppliedDefaults { fn eq(&self, _other: &Self) -> bool { true } }
+impl Eq for AppliedDefaults {}
+impl AppliedDefaults {
+ pub fn contains(&self, member: &str) -> bool { self.0.iter().any(|m| m == member) }
+ pub fn mark(&mut self, member: &str) { if !self.contains(member) { self.0.push(member.into()); } }
+ pub fn clear(&mut self, member: &str) { self.0.retain(|m| m != member); }
+ pub fn members(&self) -> &[String] { &self.0 }
+ fn hidden(&self) -> bool { self.0.is_empty() || !PROVENANCE_WIRE.with(|c| c.get()) }
+}
+impl Serialize for AppliedDefaults { fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> { self.0.serialize(s) } }
+thread_local! { static PROVENANCE_WIRE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
+/// While alive, serializing a model also emits its `__lml_applied` list (used by the generated codecs only).
+pub struct ProvenanceWire(bool);
+impl ProvenanceWire { pub fn enter() -> Self { Self(PROVENANCE_WIRE.with(|c| c.replace(true))) } }
+impl std::ops::Drop for ProvenanceWire { fn drop(&mut self) { PROVENANCE_WIRE.with(|c| c.set(self.0)); } }
 #[allow(non_camel_case_types, non_snake_case)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "model-serde", derive(Serialize, Deserialize))]
@@ -239,6 +256,8 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTAcc {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.acc_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -273,6 +292,8 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTAccPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -374,6 +395,19 @@ wrap_top_and_bottom: Presence::Absent,
 } } }
 impl Omml_Models_CTAnchor {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.simple_position { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.position_h { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.position_v { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.extent { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.effect_extent { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.doc_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.c_nv_graphic_frame_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.graphic { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_none { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_square { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_tight { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_through { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_top_and_bottom { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -485,6 +519,8 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTBar {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.bar_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -519,6 +555,8 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTBarPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.pos { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -1366,6 +1404,8 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTBorderBox {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.border_box_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -1426,6 +1466,15 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTBorderBoxPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.hide_top { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.hide_bot { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.hide_left { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.hide_right { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.strike_h { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.strike_v { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.strike_bltr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.strike_tlbr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -1496,6 +1545,8 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTBox {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.box_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -1542,6 +1593,12 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTBoxPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.op_emu { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.no_break { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.diff { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.brk { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.aln { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -1951,6 +2008,9 @@ r_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTCtrlPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.ins { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.del { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.r_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -1989,6 +2049,8 @@ attr: Presence::Absent,
 } } }
 impl Omml_Models_CTCustomXmlPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.placeholder { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.attr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2122,6 +2184,39 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTCustomXmlRun {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.custom_xml_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.fld_simple { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.hyperlink { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub_doc { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2285,6 +2380,8 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTD {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.d_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.e { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2338,6 +2435,13 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTDPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.beg_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sep_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.end_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.grow { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.shp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.word_r_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2452,6 +2556,8 @@ inline: Presence::Absent,
 } } }
 impl Omml_Models_CTDrawing {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.anchor { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.inline { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2719,6 +2825,8 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTEqArr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.eq_arr_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.e { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2766,6 +2874,12 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTEqArrPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.base_jc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.max_dist { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.obj_dist { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_sp_rule { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_sp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2824,6 +2938,9 @@ den: Presence::Absent,
 } } }
 impl Omml_Models_CTF {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.f_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.num { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.den { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2868,6 +2985,10 @@ checked: Presence::Absent,
 } } }
 impl Omml_Models_CTFFCheckBox {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.size { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.size_auto { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.default_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.checked { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2915,6 +3036,9 @@ list_entry: Presence::Absent,
 } } }
 impl Omml_Models_CTFFDDList {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.result { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.default_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.list_entry { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -2978,6 +3102,16 @@ text_input: Presence::Absent,
 } } }
 impl Omml_Models_CTFFData {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.name { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.enabled { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.calc_on_exit { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.entry_macro { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.exit_macro { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.help_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.status_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.check_box { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.dd_list { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.text_input { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3147,6 +3281,10 @@ format: Presence::Absent,
 } } }
 impl Omml_Models_CTFFTextInput {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.type_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.default_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.max_length { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.format { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3240,6 +3378,8 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTFPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.type_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3429,6 +3569,9 @@ dirty: Presence::Absent,
 } } }
 impl Omml_Models_CTFldChar {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.fld_data { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ff_data { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.numbering_change { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3727,6 +3870,9 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTFunc {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.func_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.f_name { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3768,6 +3914,7 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTFuncPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3795,6 +3942,7 @@ graphic_data: Presence::Absent,
 } } }
 impl Omml_Models_CTGraphicalObject {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.graphic_data { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3858,6 +4006,7 @@ no_resize: Presence::Absent,
 } } }
 impl Omml_Models_CTGraphicalObjectFrameLocking {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ext_lst { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3888,6 +4037,8 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTGroupChr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.group_chr_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -3928,6 +4079,10 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTGroupChrPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.pos { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.vert_jc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4210,6 +4365,38 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTHyperlink {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.fld_simple { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.hyperlink { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub_doc { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4389,6 +4576,11 @@ dist_r: Presence::Absent,
 } } }
 impl Omml_Models_CTInline {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.extent { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.effect_extent { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.doc_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.c_nv_graphic_frame_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.graphic { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4562,6 +4754,9 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTLimLow {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.lim_low_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.lim { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4603,6 +4798,7 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTLimLowPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4636,6 +4832,9 @@ lim: Presence::Absent,
 } } }
 impl Omml_Models_CTLimUpp {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.lim_upp_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.lim { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4671,6 +4870,7 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTLimUppPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4743,6 +4943,8 @@ mr: Presence::Absent,
 } } }
 impl Omml_Models_CTM {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.m_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.mr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4775,6 +4977,7 @@ mc_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTMC {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.mc_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4805,6 +5008,8 @@ mc_jc: Presence::Absent,
 } } }
 impl Omml_Models_CTMCPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.count { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.mc_jc { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4837,6 +5042,7 @@ mc: Presence::Absent,
 } } }
 impl Omml_Models_CTMCS {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.mc { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4888,6 +5094,15 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTMPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.base_jc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.plc_hide { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_sp_rule { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.c_gp_rule { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_sp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.c_sp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.c_gp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.mcs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -4955,6 +5170,7 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTMR {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.e { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -5123,6 +5339,22 @@ nary_lim: Presence::Absent,
 } } }
 impl Omml_Models_CTMathPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.math_font { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.brk_bin { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.brk_bin_sub { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.small_frac { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.disp_def { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.l_margin { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_margin { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.def_jc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.pre_sp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.post_sp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.inter_sp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.intra_sp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.wrap_indent { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.wrap_right { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.int_lim { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nary_lim { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -5287,6 +5519,10 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTNary {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.nary_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.sub { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sup { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -5341,6 +5577,12 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTNaryPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_loc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.grow { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sub_hide { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sup_hide { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -5411,6 +5653,9 @@ hidden: Presence::Absent,
 } } }
 impl Omml_Models_CTNonVisualDrawingProps {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.hlink_click { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.hlink_hover { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ext_lst { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -5451,6 +5696,8 @@ ext_lst: Presence::Absent,
 } } }
 impl Omml_Models_CTNonVisualGraphicFrameProperties {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.graphic_frame_locks { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ext_lst { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -5618,6 +5865,51 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTOMath {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.acc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bar { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.box_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.border_box { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.d { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.eq_arr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.f { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.func { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.group_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_low { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_upp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.m { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nary { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.phant { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rad { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_pre { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6017,6 +6309,54 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTOMathArg {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.arg_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.t { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.acc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bar { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.box_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.border_box { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.d { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.eq_arr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.f { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.func { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.group_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_low { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_upp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.m { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nary { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.phant { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rad { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_pre { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6290,6 +6630,7 @@ arg_sz: Presence::Absent,
 } } }
 impl Omml_Models_CTOMathArgPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.arg_sz { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6368,6 +6709,9 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTOMathPara {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.o_math_para_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.o_math { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6410,6 +6754,7 @@ jc: Presence::Absent,
 } } }
 impl Omml_Models_CTOMathParaPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.jc { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6443,6 +6788,7 @@ dya_orig: Presence::Absent,
 } } }
 impl Omml_Models_CTObject {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.control { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6489,6 +6835,7 @@ ext: Presence::Absent,
 } } }
 impl Omml_Models_CTOfficeArtExtensionList {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ext { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6538,13 +6885,16 @@ Err(serde::de::Error::custom("invalid enum value")) } }
 pub struct Omml_Models_CTOnOff {
 #[cfg_attr(feature = "model-serde", serde(rename = "val", default, skip_serializing_if = "Presence::is_absent"))]
 pub val: Presence<Omml_Models_CTOnOff_val_Enum>,
+#[cfg_attr(feature = "model-serde", serde(rename = "__lml_applied", skip_deserializing, skip_serializing_if = "AppliedDefaults::hidden"))]
+pub __lml_applied: AppliedDefaults,
 }
 impl Default for Omml_Models_CTOnOff { fn default()->Self { Self {
 val: Presence::Absent,
+__lml_applied: AppliedDefaults::default(),
 } } }
 impl Omml_Models_CTOnOff {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
-if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_CTOnOff_val_Enum>>("\"on\"").map_err(|_|invalid("Omml::Models::CTOnOff@omml", "val", "non_serializable_default"))?; }
+if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_CTOnOff_val_Enum>>("\"on\"").map_err(|_|invalid("Omml::Models::CTOnOff@omml", "val", "non_serializable_default"))?; self.__lml_applied.mark("val"); }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6777,6 +7127,8 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTPhant {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.phant_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6823,6 +7175,12 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTPhantPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.show { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.zero_wid { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.zero_asc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.zero_desc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.transp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6878,6 +7236,8 @@ control: Presence::Absent,
 } } }
 impl Omml_Models_CTPicture {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.movie { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.control { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -6910,6 +7270,7 @@ doc_part: Presence::Absent,
 } } }
 impl Omml_Models_CTPlaceholder {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.doc_part { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -7298,6 +7659,40 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTR {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.r_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.word_r_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.br { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.instr_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del_instr_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.no_break_hyphen { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.soft_hyphen { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.day_short { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.month_short { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.year_short { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.day_long { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.month_long { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.year_long { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.annotation_ref { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.footnote_ref { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.endnote_ref { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.separator { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.continuation_separator { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sym { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.pg_num { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.cr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.tab { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.object { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.pict { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.fld_char { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ruby { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.footnote_reference { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.endnote_reference { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.comment_reference { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.drawing { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ptab { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.last_rendered_page_break { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.t { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -7511,6 +7906,12 @@ sty: Presence::Absent,
 } } }
 impl Omml_Models_CTRPR {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.lit { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nor { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.brk { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.aln { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.scr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sty { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -7680,6 +8081,46 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTRPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.r_pr_change { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_style { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_fonts { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.b { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.b_cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.i { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.i_cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.caps { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.small_caps { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.strike { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.dstrike { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.outline { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.shadow { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.emboss { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.imprint { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.no_proof { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.snap_to_grid { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.vanish { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.web_hidden { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.color { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.spacing { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.w { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.kern { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.position { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sz { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sz_cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.highlight { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.u { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.effect { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bdr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.shd { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.fit_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.vert_align { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rtl { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.em { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lang { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.east_asian_layout { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.spec_vanish { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.o_math { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -7911,6 +8352,7 @@ r_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTRPrChange {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.r_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -8052,6 +8494,45 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTRPrOriginal {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.r_style { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r_fonts { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.b { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.b_cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.i { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.i_cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.caps { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.small_caps { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.strike { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.dstrike { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.outline { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.shadow { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.emboss { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.imprint { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.no_proof { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.snap_to_grid { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.vanish { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.web_hidden { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.color { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.spacing { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.w { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.kern { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.position { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sz { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sz_cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.highlight { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.u { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.effect { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bdr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.shd { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.fit_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.vert_align { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rtl { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.cs { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.em { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lang { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.east_asian_layout { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.spec_vanish { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.o_math { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -8275,6 +8756,9 @@ e: Presence::Absent,
 } } }
 impl Omml_Models_CTRad {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.rad_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.deg { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -8313,6 +8797,8 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTRadPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.deg_hide { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -8370,6 +8856,9 @@ ruby_base: Presence::Absent,
 } } }
 impl Omml_Models_CTRuby {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.ruby_pr { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.rt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.ruby_base { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -8527,6 +9016,32 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTRubyContent {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -8673,6 +9188,12 @@ dirty: Presence::Absent,
 } } }
 impl Omml_Models_CTRubyPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.ruby_align { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.hps { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.hps_raise { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.hps_base_text { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.lid { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.dirty { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -8870,6 +9391,54 @@ s_sup: Presence::Absent,
 } } }
 impl Omml_Models_CTRunTrackChange {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.acc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bar { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.box_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.border_box { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.d { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.eq_arr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.f { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.func { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.group_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_low { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_upp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.m { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nary { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.phant { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rad { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_pre { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sup { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9102,6 +9671,10 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTSPre {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.s_pre_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.sub { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sup { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9148,6 +9721,7 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTSPrePr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9181,6 +9755,9 @@ sub: Presence::Absent,
 } } }
 impl Omml_Models_CTSSub {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.s_sub_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9216,6 +9793,7 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTSSubPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9255,6 +9833,10 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_CTSSubSup {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.s_sub_sup_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sup { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9304,6 +9886,8 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTSSubSupPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.aln_scr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9342,6 +9926,9 @@ sup: Presence::Absent,
 } } }
 impl Omml_Models_CTSSup {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.s_sup_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.e { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sup { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9377,6 +9964,7 @@ ctrl_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTSSupPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.ctrl_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9455,6 +10043,7 @@ last_value: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtComboBox {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.list_item { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9574,6 +10163,38 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtContentRun {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.fld_simple { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.hyperlink { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub_doc { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9741,6 +10362,10 @@ full_date: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtDate {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.date_format { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lid { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.store_mapped_data_as { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.calendar { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9828,6 +10453,9 @@ doc_part_unique: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtDocPart {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.doc_part_gallery { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.doc_part_category { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.doc_part_unique { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9868,6 +10496,7 @@ last_value: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtDropDownList {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.list_item { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -9894,6 +10523,7 @@ r_pr: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtEndPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.r_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -10003,6 +10633,27 @@ bibliography: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.r_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.alias { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lock { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.placeholder { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.showing_plc_hdr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.data_binding { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.temporary { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.id { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.tag { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.equation { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.combo_box { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.date { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.doc_part_obj { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.doc_part_list { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.drop_down_list { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.picture { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.rich_text { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.text { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.citation { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.group { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bibliography { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -10116,6 +10767,9 @@ sdt_content: Presence::Absent,
 } } }
 impl Omml_Models_CTSdtRun {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.sdt_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sdt_end_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sdt_content { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -10758,6 +11412,39 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTSimpleField {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.fld_data { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.fld_simple { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.hyperlink { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub_doc { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -10918,6 +11605,7 @@ attr: Presence::Absent,
 } } }
 impl Omml_Models_CTSmartTagPr {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.attr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -11046,6 +11734,39 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_CTSmartTagRun {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.smart_tag_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.fld_simple { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.hyperlink { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub_doc { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -11791,13 +12512,16 @@ Err(serde::de::Error::custom("invalid enum value")) } }
 pub struct Omml_Models_CTWordprocessingOnOff {
 #[cfg_attr(feature = "model-serde", serde(rename = "val", default, skip_serializing_if = "Presence::is_absent"))]
 pub val: Presence<Omml_Models_CTWordprocessingOnOff_val_Enum>,
+#[cfg_attr(feature = "model-serde", serde(rename = "__lml_applied", skip_deserializing, skip_serializing_if = "AppliedDefaults::hidden"))]
+pub __lml_applied: AppliedDefaults,
 }
 impl Default for Omml_Models_CTWordprocessingOnOff { fn default()->Self { Self {
 val: Presence::Absent,
+__lml_applied: AppliedDefaults::default(),
 } } }
 impl Omml_Models_CTWordprocessingOnOff {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
-if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_CTWordprocessingOnOff_val_Enum>>("\"on\"").map_err(|_|invalid("Omml::Models::CTWordprocessingOnOff@omml", "val", "non_serializable_default"))?; }
+if self.val.is_absent() { self.val=serde_json::from_str::<Presence<Omml_Models_CTWordprocessingOnOff_val_Enum>>("\"on\"").map_err(|_|invalid("Omml::Models::CTWordprocessingOnOff@omml", "val", "non_serializable_default"))?; self.__lml_applied.mark("val"); }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -11875,6 +12599,8 @@ edited: Presence::Absent,
 } } }
 impl Omml_Models_CTWrapPath {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.line_to { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -11945,6 +12671,7 @@ dist_r: Presence::Absent,
 } } }
 impl Omml_Models_CTWrapSquare {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.effect_extent { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -12004,6 +12731,7 @@ dist_r: Presence::Absent,
 } } }
 impl Omml_Models_CTWrapThrough {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.wrap_polygon { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -12063,6 +12791,7 @@ dist_r: Presence::Absent,
 } } }
 impl Omml_Models_CTWrapTight {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.wrap_polygon { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -12096,6 +12825,7 @@ dist_b: Presence::Absent,
 } } }
 impl Omml_Models_CTWrapTopBottom {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.effect_extent { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -12285,6 +13015,35 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_EGContentRunContent {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -12432,6 +13191,8 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_EGMathContent {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -12595,6 +13356,51 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_EGOMathElements {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.acc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bar { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.box_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.border_box { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.d { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.eq_arr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.f { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.func { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.group_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_low { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_upp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.m { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nary { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.phant { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rad { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_pre { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -12860,6 +13666,26 @@ r: Presence::Absent,
 } } }
 impl Omml_Models_EGOMathMathElements {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.acc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bar { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.box_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.border_box { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.d { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.eq_arr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.f { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.func { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.group_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_low { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_upp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.m { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nary { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.phant { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rad { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_pre { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -13056,6 +13882,38 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_EGPContent {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.fld_simple { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.hyperlink { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sub_doc { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.smart_tag { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.sdt { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -13218,6 +14076,9 @@ r_pr: Presence::Absent,
 } } }
 impl Omml_Models_EGRPrMath {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.ins { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.del { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.r_pr { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -13299,6 +14160,22 @@ custom_xml_move_to_range_end: Presence::Absent,
 } } }
 impl Omml_Models_EGRangeMarkupElements {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -13461,6 +14338,32 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_EGRubyContent {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(v)=&mut self.r { v.apply_defaults()?; }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -13593,6 +14496,7 @@ t: Presence::Absent,
 } } }
 impl Omml_Models_EGRunInnerContent {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.t { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -13692,6 +14596,31 @@ o_math: Presence::Absent,
 } } }
 impl Omml_Models_EGRunLevelElts {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -13905,6 +14834,37 @@ last_rendered_page_break: Presence::Absent,
 } } }
 impl Omml_Models_EGWordRunInnerContent {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.br { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.instr_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del_instr_text { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.no_break_hyphen { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.soft_hyphen { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.day_short { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.month_short { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.year_short { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.day_long { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.month_long { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.year_long { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.annotation_ref { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.footnote_ref { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.endnote_ref { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.separator { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.continuation_separator { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.sym { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.pg_num { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.cr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.tab { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.object { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.pict { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.fld_char { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ruby { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.footnote_reference { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.endnote_reference { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.comment_reference { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.drawing { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ptab { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.last_rendered_page_break { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -14064,6 +15024,11 @@ wrap_top_and_bottom: Presence::Absent,
 } } }
 impl Omml_Models_EGWrapType {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.wrap_none { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_square { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_tight { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_through { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.wrap_top_and_bottom { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -14242,6 +15207,51 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_OMath {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.acc { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.bar { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.box_ { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.border_box { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.d { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.eq_arr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.f { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.func { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.group_chr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_low { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.lim_upp { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.m { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.nary { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.phant { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.rad { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_pre { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sub_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.s_sup { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.proof_err { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_start { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.perm_end { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.ins { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.del { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(v)=&mut self.move_from { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.bookmark_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.comment_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_ins_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_del_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_from_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_start { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.custom_xml_move_to_range_end { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math_para { v.apply_defaults()?; }
+if let Presence::Value(v)=&mut self.o_math { v.apply_defaults()?; }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
@@ -14506,6 +15516,9 @@ __lml_content: Presence::Absent,
 } } }
 impl Omml_Models_OMathPara {
 pub fn apply_defaults(&mut self)->Result<(),ValidationError>{
+if let Presence::Value(list)=&mut self.o_math_para_pr { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.o_math { for v in list { v.apply_defaults()?; } }
+if let Presence::Value(list)=&mut self.r { for v in list { v.apply_defaults()?; } }
 Ok(()) }
 pub fn validate(&self)->Result<(),ValidationError>{self.validate_phase(true)}
 pub fn validate_shape(&self)->Result<(),ValidationError>{self.validate_phase(false)}
